@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>My experiment</title>
+    <script src="jspsych.js"></script>
+    <script src="plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="plugins/jspsych-instructions.js"></script>
+    <link href="css/jspsych.css" rel="stylesheet" type="text/css">
+    <!--This experiment consists of three parts (currently one one is in the making)
+    The first part is a change detection task, the second is a two-armed bandit task 
+    and finally we have a combined version of the two "dual task". The code is based on jspsych package.-->
+</head>
+<style>
+    img {
+        height: 130px;
+        width: 130px;
+    }
+
+    /* it could have been nice if it could have been according to the subject's screen size*/
+
+    .fixation {
+        /* plus fixation will be in the middle of the screen*/
+        position: fixed;
+        top: 305px;
+        /*610/2* / 
+        left: 640px;
+        /*1280/2*/
+        font-size: 15.8px;
+    }
+
+    /* we have one image in every quadrant pixels locations are from Balaban et al., 2019 */
+    /* first quadrant */
+    img.a {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 200px;
+        /*610/2-105*/
+        left: 535px;
+        /*1280/2-105*/
+    }
+
+    img.b {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 95px;
+        left: 430px;
+    }
+
+    img.c {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 10px;
+        left: 325px;
+    }
+
+    /* second quadrant */
+    img.d {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 200px;
+        right: 535px;
+    }
+
+    img.e {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 95px;
+        right: 430px;
+    }
+
+    img.f {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        top: 10px;
+        right: 325px;
+    }
+
+    /* third quadrant */
+    img.g {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 200px;
+        right: 535px;
+    }
+
+    img.h {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 95px;
+        right: 430px;
+    }
+
+    img.i {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 10px;
+        right: 325px;
+    }
+
+    /* fourth quadrant */
+    img.j {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 200px;
+        left: 535px;
+    }
+
+    img.k {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 95px;
+        left: 430px;
+    }
+
+    img.l {
+        position: fixed;
+        height: 51.4px;
+        width: 51.4px;
+        bottom: 10px;
+        left: 325px;
+    }
+</style>
+
+<body>
+    <script>
+        /* getting the images to display */
+        var change_detection_images = ['images/squares/black.png', 'images/squares/blue.png', 'images/squares/brown.png', 'images/squares/cyan.png', 'images/squares/green.png', 'images/squares/magenta.png', 'images/squares/orange.png', 'images/squares/red.png', 'images/squares/yellow.png']
+        /* setting the locations to randomize from */
+        var locations = ["<img class='a' src=", "<img class='b' src=", "<img class='c' src=", "<img class='d' src=", "<img class='e' src=", "<img class='f' src=", "<img class='g' src=", "<img class='h' src=", "<img class='i' src=", "<img class='j' src=", "<img class='k' src=", "<img class='l' src="]
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * Math.floor(max));
+        }
+        var get_squares = function (images, number_of_images) {
+            return jsPsych.randomization.sampleWithoutReplacement(change_detection_images, number_of_images)
+        }
+        var get_locations = function (locations_arr, number_of_images) {
+            random_locations = [];
+            for (var i = 0; i < 4; i++) {
+                random_2_locations = jsPsych.randomization.sampleWithoutReplacement(locations_arr.slice(i * 3, i * 3 + 3), 2)
+                random_locations.push(random_2_locations[0])
+                if (number_of_images > 4) {
+                    random_locations.push(random_2_locations[1])
+                }
+            }
+            return random_locations
+        }
+        var condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)
+        var fixation = '<div class="fixation">+</div>'
+        /*This is the timeline. we build every component and then "push" it to the timeline. */
+        var timeline = [];
+
+        var instructions = {
+            type: "instructions",
+            pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
+                "<p> I want you to focus on the plus during the whole experiment.</p> " +
+                "<p> Then, colored squared will appear on the screen. You need to remember the colors of all of the squares.</p>" +
+                "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed." +
+                "<p> Your task is to identify whether this square is in the same or different color as the one previously displayed in this location." +
+                "<p> Press <b>'s'</b> if you think the color is the same and <b>'k'</b> if you think the color is different</p>" +
+                "<p> <u>Please try to be as accurate as possible for the experiment to succeed.<u>"],
+            show_clickable_nav: true
+        };
+        timeline.push(instructions);
+
+        var example_1 = {
+            type: "html-keyboard-response",
+            stimulus: "<div style='width: 700px;'>" +
+                "<img src='images/examples/1.png'>" +
+                "<p></p>" +
+                "<img src='images/examples/3.png'>" +
+                "<p>Press <b>'s'</b>  if the color of the individual square is the same as in the group picture.</p>",
+            choices: 's',
+        };
+        timeline.push(example_1);
+
+        var example_2 = {
+            type: "html-keyboard-response",
+            stimulus: "<div style='width: 700px;'>" +
+                "<img src='images/examples/1.png'>" +
+                "<p></p>" +
+                "<img src='images/examples/2.png'>" +
+                "<p>Press <b>'k'</b> if the color of the individual square is the same as in the group picture.</p>",
+            choices: 'k'
+        };
+        timeline.push(example_2);
+
+        var start_practice = {
+            type: "html-keyboard-response",
+            stimulus: "<p>We will now start a practice trial.</p>" +
+                "<p>Please remember to press <b>'s'</b> if the square is the same and <b>'k'</b> if it is different</p>" +
+                "<p><b>Press any key to start</b></p>"
+        }
+        timeline.push(start_practice);
+
+        var fixation_memory = {
+            type: 'html-keyboard-response',
+            stimulus: fixation,
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 500,
+        }
+        var current_locations = null; // set up a global variable to hold your memory stimulus
+        var memory = {
+            type: "html-keyboard-response",
+            stimulus: function generate_random_squares() {
+                number_of_images = parseInt(condition[0][0])
+                change_detection_images = jsPsych.randomization.shuffle(change_detection_images)
+                current_locations = get_locations(locations, number_of_images)
+                squares = '';
+                for (index = 0; index < number_of_images; index++) {
+                    squares += current_locations[index] + change_detection_images[index] + ">"
+                }
+                return squares;
+            },
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 3000,
+            data: {
+                set_size: function () {
+                    if (condition[0][0] == '4') {
+                        return 4
+                    }
+                    else {
+                        return 4
+                    }
+                }
+            }
+        }
+        var fixation_retention = {
+            type: 'html-keyboard-response',
+            stimulus: fixation,
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 900
+        }
+        var test = {
+            type: "html-keyboard-response",
+            stimulus: function () {
+                rand_num = getRandomInt(3)
+                if (condition[0][1] == 's') { /* it is the same condition */
+                    square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
+                }
+                else { /* it is different condition */
+                    square = current_locations[rand_num] + jsPsych.randomization.sampleWithoutReplacement(change_detection_images.slice(number_of_images), 1) + ">"
+                }
+                return square
+            },
+            choices: ['s', 'k'],
+            trial_duration: 6000,
+            data: {
+                correct_response: function () {
+                    if (condition[0][1] == 's') {
+                        return 's'
+                    }
+                    else {
+                        return 'k'
+                    }
+                }
+
+            },
+            on_finish: function (data) {
+                condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)
+                var correct = false;
+                if (data.correct_response == jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)) {
+                    correct = true;
+                }
+                data.is_correct = correct;
+            }
+
+        }
+        var feedback = {
+            type: 'html-keyboard-response',
+            stimulus: function () {
+                feedback_text = 'incorrect'
+                last_trial_correct = jsPsych.data.getLastTrialData().values()[0].is_correct;
+                if (last_trial_correct == true) {
+                    feedback_text = 'correct'
+                }
+                return feedback_text
+            },
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 2000
+        }
+        var test_procedure = {
+            timeline: [fixation_memory, memory, fixation_retention, test, feedback],
+            repetitions: 2
+        }
+        timeline.push(test_procedure);
+        function download_csv(csv) {
+            var hiddenElement = document.createElement('a');
+            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+            hiddenElement.target = '_blank';
+            hiddenElement.download = 'subject.csv';
+            hiddenElement.click();
+        }
+
+
+        jsPsych.init({
+            timeline: timeline,
+            on_finish: function () {
+                jsPsych.data.displayData();
+                data = jsPsych.data.get().csv();
+                download_csv(data)
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
