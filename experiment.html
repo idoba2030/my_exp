@@ -4,8 +4,10 @@
 <head>
     <title>My experiment</title>
     <script src="jspsych.js"></script>
+    <script src="plugins/jspsych-resize.js"></script>
     <script src="plugins/jspsych-html-keyboard-response.js"></script>
     <script src="plugins/jspsych-instructions.js"></script>
+    <script src="plugins/jspsych-fullscreen.js"></script>
     <link href="css/jspsych.css" rel="stylesheet" type="text/css">
     <!--This experiment consists of three parts (currently one one is in the making)
     The first part is a change detection task, the second is a two-armed bandit task 
@@ -13,19 +15,51 @@
 </head>
 <style>
     img {
-        height: 130px;
-        width: 130px;
+        height: 300px;
+        width: 250px;
     }
 
     /* it could have been nice if it could have been according to the subject's screen size*/
+    :root {
+        --top_fix: 0px;
+        --left_fix: 0px;
+
+        --top_a: 0px;
+        --left_a: 0px;
+        --top_b: 0px;
+        --left_b: 0px;
+        --top_c: 0px;
+        --left_c: 0px;
+
+
+        --top_d: 0px;
+        --right_d: 0px;
+        --top_e: 0px;
+        --right_e: 0px;
+        --top_f: 0px;
+        --right_f: 0px;
+
+        --bottom_g: 0px;
+        --right_g: 0px;
+        --bottom_h: 0px;
+        --right_h: 0px;
+        --bottom_i: 0px;
+        --right_i: 0px;
+
+
+        --bottom_j: 0px;
+        --left_j: 0px;
+        --bottom_k: 0px;
+        --left_k: 0px;
+        --bottom_l: 0px;
+        --left_l: 0px;
+    }
 
     .fixation {
         /* plus fixation will be in the middle of the screen*/
         position: fixed;
-        top: 305px;
-        /*610/2* / 
-        left: 640px;
-        /*1280/2*/
+        top: var(--top_fix);
+        left: var(--left_fix);
         font-size: 15.8px;
     }
 
@@ -35,26 +69,24 @@
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 200px;
-        /*610/2-105*/
-        left: 535px;
-        /*1280/2-105*/
+        top: var(--top_a);
+        left: var(--left_a);
     }
 
     img.b {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 95px;
-        left: 430px;
+        top: var(--top_b);
+        left: var(--left_b);
     }
 
     img.c {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 10px;
-        left: 325px;
+        top: var(--top_c);
+        left: var(--left_c);
     }
 
     /* second quadrant */
@@ -62,24 +94,24 @@
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 200px;
-        right: 535px;
+        top: var(--top_d);
+        right: var(--right_d);
     }
 
     img.e {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 95px;
-        right: 430px;
+        top: var(--top_e);
+        right: var(--right_e);
     }
 
     img.f {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        top: 10px;
-        right: 325px;
+        top: var(--top_f);
+        right: var(--right_f);
     }
 
     /* third quadrant */
@@ -87,24 +119,24 @@
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 200px;
-        right: 535px;
+        bottom: var(--bottom_g);
+        right: var(--right_g);
     }
 
     img.h {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 95px;
-        right: 430px;
+        bottom: var(--bottom_h);
+        right: var(--right_h);
     }
 
     img.i {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 10px;
-        right: 325px;
+        bottom: var(--bottom_i);
+        right: var(--right_i);
     }
 
     /* fourth quadrant */
@@ -112,29 +144,58 @@
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 200px;
-        left: 535px;
+        bottom: var(--bottom_j);
+        left: var(--left_j);
     }
 
     img.k {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 95px;
-        left: 430px;
+        bottom: var(--bottom_k);
+        left: var(--left_k);
     }
 
     img.l {
         position: fixed;
         height: 51.4px;
         width: 51.4px;
-        bottom: 10px;
-        left: 325px;
+        bottom: var(--bottom_l);
+        left: var(--left_l);
     }
 </style>
 
 <body>
     <script>
+        let root = document.documentElement;
+        let vis_angle_px = 105
+        root.style.setProperty('--top_fix', window.screen.height / 2 + "px");
+        root.style.setProperty('--left_fix', window.screen.width / 2 + "px");
+        root.style.setProperty('--top_a', window.screen.height / 2 - vis_angle_px + "px");
+        root.style.setProperty('--left_a', window.screen.width / 2 - vis_angle_px + "px");
+        root.style.setProperty('--top_b', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--left_b', window.screen.width / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--top_c', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--left_c', window.screen.width / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--top_d', window.screen.height / 2 - vis_angle_px + "px");
+        root.style.setProperty('--right_d', window.screen.width / 2 - vis_angle_px + "px");
+        root.style.setProperty('--top_e', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--right_e', window.screen.width / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--top_f', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--right_f', window.screen.width / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--bottom_g', window.screen.height / 2 - vis_angle_px + "px");
+        root.style.setProperty('--right_g', window.screen.width / 2 - vis_angle_px + "px");
+        root.style.setProperty('--bottom_h', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--right_h', window.screen.width / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--bottom_i', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--right_i', window.screen.width / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--bottom_j', window.screen.height / 2 - vis_angle_px + "px");
+        root.style.setProperty('--left_j', window.screen.width / 2 - vis_angle_px + "px");
+        root.style.setProperty('--bottom_k', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--left_k', window.screen.width / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--left_l', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--left_l', window.screen.width / 2 - 3 * vis_angle_px + "px");
+
         /* getting the images to display */
         var change_detection_images = ['images/squares/black.png', 'images/squares/blue.png', 'images/squares/brown.png', 'images/squares/cyan.png', 'images/squares/green.png', 'images/squares/magenta.png', 'images/squares/orange.png', 'images/squares/red.png', 'images/squares/yellow.png']
         /* setting the locations to randomize from */
@@ -161,6 +222,10 @@
         /*This is the timeline. we build every component and then "push" it to the timeline. */
         var timeline = [];
 
+        timeline.push({
+            type: 'fullscreen',
+            fullscreen_mode: true
+        });
         var instructions = {
             type: "instructions",
             pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
@@ -177,9 +242,9 @@
         var example_1 = {
             type: "html-keyboard-response",
             stimulus: "<div style='width: 700px;'>" +
-                "<img src='images/squares/a.png'>" +
+                "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
-                "<img src='images/squares/c.png'>" +
+                "<img src='images/squares/example2.png'>" +
                 "<p>Press <b>'s'</b>  if the color of the individual square is the same as in the group picture.</p>",
             choices: 's',
         };
@@ -188,9 +253,9 @@
         var example_2 = {
             type: "html-keyboard-response",
             stimulus: "<div style='width: 700px;'>" +
-                "<img src='images/squares/a.png'>" +
+                "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
-                "<img src='images/squares/b.png'>" +
+                "<img src='images/squares/example3.png'>" +
                 "<p>Press <b>'k'</b> if the color of the individual square is the same as in the group picture.</p>",
             choices: 'k'
         };
@@ -221,7 +286,7 @@
                 for (index = 0; index < number_of_images; index++) {
                     squares += current_locations[index] + change_detection_images[index] + ">"
                 }
-                return squares;
+                return squares + fixation;
             },
             choices: jsPsych.NO_KEYS,
             trial_duration: 3000,
@@ -252,7 +317,7 @@
                 else { /* it is different condition */
                     square = current_locations[rand_num] + jsPsych.randomization.sampleWithoutReplacement(change_detection_images.slice(number_of_images), 1) + ">"
                 }
-                return square
+                return square + fixation
             },
             choices: ['s', 'k'],
             trial_duration: 6000,
@@ -312,7 +377,10 @@
                 download_csv(data)
             }
         });
-
+        timeline.push({
+            type: 'fullscreen',
+            fullscreen_mode: false
+        });
 
     </script>
 </body>
