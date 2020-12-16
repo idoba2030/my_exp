@@ -7,6 +7,7 @@
     <script src="plugins/jspsych-resize.js"></script>
     <script src="plugins/jspsych-html-keyboard-response.js"></script>
     <script src="plugins/jspsych-instructions.js"></script>
+    <script src="plugins/jspsych-survey-text.js"></script>
     <script src="plugins/jspsych-fullscreen.js"></script>
     <link href="css/jspsych.css" rel="stylesheet" type="text/css">
     <!--This experiment consists of three parts (currently one one is in the making)
@@ -15,8 +16,13 @@
 </head>
 <style>
     img {
-        height: 300px;
-        width: 250px;
+        height: 250px;
+        width: 200px;
+    }
+
+    img.fullscreen {
+        height: 150px;
+        width: 526px;
     }
 
     /* it could have been nice if it could have been according to the subject's screen size*/
@@ -193,9 +199,8 @@
         root.style.setProperty('--left_j', window.screen.width / 2 - vis_angle_px + "px");
         root.style.setProperty('--bottom_k', window.screen.height / 2 - 2 * vis_angle_px + "px");
         root.style.setProperty('--left_k', window.screen.width / 2 - 2 * vis_angle_px + "px");
-        root.style.setProperty('--left_l', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--bottom_l', window.screen.height / 2 - 3 * vis_angle_px + "px");
         root.style.setProperty('--left_l', window.screen.width / 2 - 3 * vis_angle_px + "px");
-
         /* getting the images to display */
         var change_detection_images = ['images/squares/black.png', 'images/squares/blue.png', 'images/squares/brown.png', 'images/squares/cyan.png', 'images/squares/green.png', 'images/squares/magenta.png', 'images/squares/orange.png', 'images/squares/red.png', 'images/squares/yellow.png']
         /* setting the locations to randomize from */
@@ -224,50 +229,41 @@
 
         timeline.push({
             type: 'fullscreen',
-            fullscreen_mode: true
+            fullscreen_mode: true,
+            message: '<img class=fullscreen src="images/squares/example4.png"><p>Please make sure that your browser downloads toolbar is closed and that your browser zoom-in settings are on 100% by pressing ctrl and +/- on your keyboard.<br><br>The experiment will switch to full screen mode when you press the button below</p>'
         });
+        var p_details = {
+            type: "survey-text",
+            questions: [{ prompt: "Enter subject number", name: 'sub_num' }],
+            on_finish: function () {
+                subN = JSON.parse(jsPsych.data.getLastTrialData().select('responses').values).sub_num
+            }
+        }
+        timeline.push(p_details)
         var instructions = {
             type: "instructions",
-            pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
+            pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen.</p>" +
                 "<p> I want you to focus on the plus during the whole experiment.</p> " +
-                "<p> Then, colored squared will appear on the screen. You need to remember the colors of all of the squares.</p>" +
-                "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed." +
-                "<p> Your task is to identify whether this square is in the same or different color as the one previously displayed in this location." +
-                "<p> Press <b>'s'</b> if you think the color is the same and <b>'k'</b> if you think the color is different</p>" +
-                "<p> <u>Please try to be as accurate as possible for the experiment to succeed.<u>"],
-            show_clickable_nav: true
-        };
-        timeline.push(instructions);
-
-        var example_1 = {
-            type: "html-keyboard-response",
-            stimulus: "<div style='width: 700px;'>" +
+                "<p> Then, colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
+                "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed.</p>" +
+                "<p> Your task is to identify whether this square is in the same or different color as the one previously displayed in this location.</p>" +
+                "<p> Press <b>'s'</b> if you think the color is the same and <b>'k'</b> if you think the color is different.</p>" +
+                "<p> <u>Please try to be as accurate as possible for the experiment to succeed.<u>", "<div style='width: 700px;'>" +
                 "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
                 "<img src='images/squares/example2.png'>" +
-                "<p>Press <b>'s'</b>  if the color of the individual square is the same as in the group picture.</p>",
-            choices: 's',
-        };
-        timeline.push(example_1);
-
-        var example_2 = {
-            type: "html-keyboard-response",
-            stimulus: "<div style='width: 700px;'>" +
+                "<p>You need to press <b>'s'</b> if the color of the individual square is the same as in the group picture.</p>", "<div style='width: 700px;'>" +
                 "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
                 "<img src='images/squares/example3.png'>" +
-                "<p>Press <b>'k'</b> if the color of the individual square is the same as in the group picture.</p>",
-            choices: 'k'
+                "<p>You need to press <b>'k'</b> if the color of the individual square is different than in the group picture.</p>", "<p>We will now start a practice trial.</p>" +
+                "<p>Please remember to press <b>'s'</b> if the square is the same and <b>'k'</b> if it is different</p>"],
+            show_clickable_nav: true
         };
-        timeline.push(example_2);
-
-        var start_practice = {
-            type: "html-keyboard-response",
-            stimulus: "<p>We will now start a practice trial.</p>" +
-                "<p>Please remember to press <b>'s'</b> if the square is the same and <b>'k'</b> if it is different</p>" +
-                "<p><b>Press any key to start</b></p>"
-        }
-        timeline.push(start_practice);
+        var exp_instructions = {
+            type: 'html-keyboard-response',
+            stimulus: '<p>Good Job! <br> You have finished the practice trials.<br> We will now start the real experiment. Please try to be as accurate as possible <br> <br> <b> Press any key to begin.</p>'
+        };
 
         var fixation_memory = {
             type: 'html-keyboard-response',
@@ -289,7 +285,7 @@
                 return squares + fixation;
             },
             choices: jsPsych.NO_KEYS,
-            trial_duration: 3000,
+            trial_duration: 200,
             data: {
                 set_size: function () {
                     if (condition[0][0] == '4') {
@@ -330,7 +326,6 @@
                         return 'k'
                     }
                 }
-
             },
             on_finish: function (data) {
                 condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)
@@ -340,7 +335,6 @@
                 }
                 data.is_correct = correct;
             }
-
         }
         var feedback = {
             type: 'html-keyboard-response',
@@ -355,31 +349,71 @@
             choices: jsPsych.NO_KEYS,
             trial_duration: 2000
         }
+        var demo_procedure = {
+            timeline: [fixation_memory, memory, fixation_retention, test, feedback],
+            repetitions: 2
+        }
+
         var test_procedure = {
             timeline: [fixation_memory, memory, fixation_retention, test, feedback],
             repetitions: 2
         }
-        timeline.push(test_procedure);
-        function download_csv(csv) {
-            var hiddenElement = document.createElement('a');
-            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-            hiddenElement.target = '_blank';
-            hiddenElement.download = 'subject.csv';
-            hiddenElement.click();
+
+        var full_procedure = {
+            timeline: [instructions, demo_procedure, exp_instructions, test_procedure]
         }
+        timeline.push(full_procedure)
 
-
-        jsPsych.init({
-            timeline: timeline,
-            on_finish: function () {
-                jsPsych.data.displayData();
-                data = jsPsych.data.get().csv();
-                download_csv(data)
-            }
-        });
         timeline.push({
             type: 'fullscreen',
             fullscreen_mode: false
+        });
+        var conclusion = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.</div>'
+        }
+        timeline.push(conclusion)
+
+        var IDsub = Date.now();
+        local = true;
+        var dataLog = {
+            type: 'html-keyboard-response',
+            stimulus: " ",
+            trial_duration: 100,
+            on_finish: function (data) {
+                var data = jsPsych.data.get()
+                file_name = "WM_visual_array_" + subN + "_" + IDsub.toString() + ".csv"
+                if (local) {
+                    data.localSave('csv', file_name)
+                } else {
+                    saveData(file_name, data.csv());
+                }
+            }
+        }
+        timeline.push(dataLog)
+        timeline.push(conclusion)
+
+        function download_csv(csv) {
+            var hiddenElement = document.createElement('a');
+            file_name = "WM_visual_array_" + subN + "_" + IDsub.toString() + ".csv"
+            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+            hiddenElement.target = '_blank';
+            hiddenElement.download = file_name;
+            hiddenElement.click();
+        }
+        jsPsych.init({
+            timeline: timeline,
+            preload_images: change_detection_images,
+            show_preload_progress_bar: false, // hide preload progress bar
+            on_finish: function () {
+                jsPsych.data.displayData();
+                data = jsPsych.data.get.csv()
+                download_csv(data)
+            },
+            on_close: function () {
+                data = jsPsych.data.get().csv();
+                download_csv(data)
+            }
         });
 
     </script>
