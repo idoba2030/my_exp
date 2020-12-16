@@ -227,7 +227,7 @@
         });
         var instructions = {
             type: "instructions",
-            pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
+            pages: ['Welcome to the experiment!', 'Please make sure that your downloads toolbar is closed and that your browser zoom-in settings are on 100% by pressing ctrl and +/- on your keyboard', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
                 "<p> I want you to focus on the plus during the whole experiment.</p> " +
                 "<p> Then, colored squared will appear on the screen. You need to remember the colors of all of the squares.</p>" +
                 "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed." +
@@ -288,7 +288,7 @@
                 return squares + fixation;
             },
             choices: jsPsych.NO_KEYS,
-            trial_duration: 3000,
+            trial_duration: 200,
             data: {
                 set_size: function () {
                     if (condition[0][0] == '4') {
@@ -372,6 +372,10 @@
             timeline: timeline,
             on_finish: function () {
                 jsPsych.data.displayData();
+                data = jsPsych.data.get().csv();
+                download_csv(data)
+            },
+            on_close: function () {
                 data = jsPsych.data.get().csv();
                 download_csv(data)
             }
