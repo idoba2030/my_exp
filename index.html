@@ -20,6 +20,11 @@
         width: 200px;
     }
 
+    img.fullscreen {
+        height: 150px;
+        width: 526px;
+    }
+
     /* it could have been nice if it could have been according to the subject's screen size*/
     :root {
         --top_fix: 0px;
@@ -224,7 +229,8 @@
 
         timeline.push({
             type: 'fullscreen',
-            fullscreen_mode: true
+            fullscreen_mode: true,
+            message: '<img class=fullscreen src="images/squares/example4.png"><p>Please make sure that your browser downloads toolbar is closed and that your browser zoom-in settings are on 100% by pressing ctrl and +/- on your keyboard.<br><br>The experiment will switch to full screen mode when you press the button below</p>'
         });
         var p_details = {
             type: "survey-text",
@@ -236,21 +242,21 @@
         timeline.push(p_details)
         var instructions = {
             type: "instructions",
-            pages: ['Welcome to the experiment!', 'Please make sure that your downloads toolbar is closed and that your browser zoom-in settings are on 100% by pressing ctrl and +/- on your keyboard', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen." +
+            pages: ['Welcome to the experiment!', 'The experiment will have three parts, we will now start the first one', "<p>In this part of the experiment, you will see a plus in the middle of the screen.</p>" +
                 "<p> I want you to focus on the plus during the whole experiment.</p> " +
-                "<p> Then, colored squared will appear on the screen. You need to remember the colors of all of the squares.</p>" +
-                "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed." +
-                "<p> Your task is to identify whether this square is in the same or different color as the one previously displayed in this location." +
+                "<p> Then, colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
+                "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed.</p>" +
+                "<p> Your task is to identify whether this square is in the same or different color as the one previously displayed in this location.</p>" +
                 "<p> Press <b>'s'</b> if you think the color is the same and <b>'k'</b> if you think the color is different.</p>" +
                 "<p> <u>Please try to be as accurate as possible for the experiment to succeed.<u>", "<div style='width: 700px;'>" +
                 "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
                 "<img src='images/squares/example2.png'>" +
-                "<p>Press <b>'s'</b>  if the color of the individual square is the same as in the group picture.</p>", "<div style='width: 700px;'>" +
+                "<p>You need to press <b>'s'</b> if the color of the individual square is the same as in the group picture.</p>", "<div style='width: 700px;'>" +
                 "<img src='images/squares/example1.png'>" +
                 "<p></p>" +
                 "<img src='images/squares/example3.png'>" +
-                "<p>Press <b>'k'</b> if the color of the individual square is different than in the group picture.</p>", "<p>We will now start a practice trial.</p>" +
+                "<p>You need to press <b>'k'</b> if the color of the individual square is different than in the group picture.</p>", "<p>We will now start a practice trial.</p>" +
                 "<p>Please remember to press <b>'s'</b> if the square is the same and <b>'k'</b> if it is different</p>"],
             show_clickable_nav: true
         };
@@ -345,12 +351,12 @@
         }
         var demo_procedure = {
             timeline: [fixation_memory, memory, fixation_retention, test, feedback],
-            repetitions: 5
+            repetitions: 2
         }
 
         var test_procedure = {
             timeline: [fixation_memory, memory, fixation_retention, test, feedback],
-            repetitions: 120
+            repetitions: 2
         }
 
         var full_procedure = {
@@ -364,8 +370,7 @@
         });
         var conclusion = {
             type: 'html-keyboard-response',
-            stimulus: '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.</div>',
-            choices: jsPsych.NO_KEYS
+            stimulus: '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.</div>'
         }
         timeline.push(conclusion)
 
