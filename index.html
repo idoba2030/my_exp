@@ -398,6 +398,8 @@
         }
         jsPsych.init({
             timeline: timeline,
+            preload_images: change_detection_images,
+            show_preload_progress_bar: false, // hide preload progress bar
             on_finish: function () {
                 jsPsych.data.displayData();
                 data = jsPsych.data.get.csv()
