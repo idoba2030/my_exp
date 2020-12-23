@@ -494,7 +494,7 @@
         var full_procedure_squares = {
             timeline: [instructions_squares, demo_procedure_squares, test_instructions_squares, test_procedure_squares]
         }
-        //timeline.push(full_procedure_squares)
+        timeline.push(full_procedure_squares)
         /*---------------------------------------------------- 
         Cards starts
         ------------------------------------------------------*/
@@ -1006,7 +1006,6 @@
             timeline: [fixation_memory, memory_for_cards_prac, fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2, test_for_cards_prac, feedback_squares],
             repetitions: 2
         }
-        timeline.push(demo_procedure_cards)
         var test_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards, fixation_cards, exp_cards1, exp_choice1, exp_reward1, fixation_cards, exp_cards2, exp_choice2, exp_reward2, test_for_cards],
             repetitions: 5
@@ -1016,11 +1015,10 @@
             timeline: [start_block, test_procedure_cards, finish_block],
             repetitions: 4
         };
-        timeline.push(test_blocks);
         var full_procedure_cards = {
             timeline: [instructions_loop, start_practice_cards, demo_procedure_cards, start_exp_cards, test_blocks]
         }
-        //timeline.push(full_procedure_cards)
+        timeline.push(full_procedure_cards)
 
         var conclusion = {
             type: 'html-keyboard-response',
