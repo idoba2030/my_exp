@@ -310,7 +310,7 @@
                 + '<br><br>Press <b>"Y"</b> to confirm that you read and accept the terms mentioned above.</p>',
             choices: 'y'
         };
-        // timeline.push(welcome)
+        timeline.push(welcome)
         timeline.push({
             type: 'fullscreen',
             fullscreen_mode: true,
@@ -324,7 +324,7 @@
                 subN = JSON.parse(jsPsych.data.getLastTrialData().select('responses').values).sub_num
             }
         }
-        //timeline.push(p_details)
+        timeline.push(p_details)
 
         var instructions_squares = {
             type: "instructions",
@@ -350,7 +350,8 @@
             type: 'html-keyboard-response',
             stimulus: '<p>Good Job! <br> You have finished the practice trials.<br> We will now start the real experiment. Please try to be as accurate as possible <br> <br> <b> Press any key to begin.</p>'
         };
-
+        var current_squares_practice_trial = 0;
+        var current_squares_exp_trial = 0;
         var fixation_memory = {
             type: 'html-keyboard-response',
             stimulus: fixation,
@@ -358,12 +359,27 @@
             trial_duration: 1000,
         }
         var current_locations = null; // set up a global variable 
+
+        var memory_practice = {
+            type: "html-keyboard-response",
+            stimulus: generate_random_squares,
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 200,
+            data: {
+                phase: 'practice', trial_name: 'memory', trial_num: function () { return current_squares_practice_trial },
+                set_size: function () {
+                    return condition[0]
+                }
+            }
+        }
+
         var memory = {
             type: "html-keyboard-response",
             stimulus: generate_random_squares,
             choices: jsPsych.NO_KEYS,
             trial_duration: 200,
             data: {
+                phase: 'exp', trial_name: 'memory', trial_num: function () { return current_squares_exp_trial },
                 set_size: function () {
                     return condition[0]
                 }
@@ -376,10 +392,10 @@
             choices: jsPsych.NO_KEYS,
             trial_duration: 900
         }
-        var test = {
+        var test_practice = {
             type: "html-keyboard-response",
             stimulus: function () {
-                rand_num = getRandomInt(3)
+                rand_num = getRandomInt(number_of_images - 1)
                 if (condition[1] == 's') { /* it is the same condition */
                     square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
                 }
@@ -391,6 +407,7 @@
             choices: ['s', 'k'],
             trial_duration: 6000,
             data: {
+                phase: 'practice', trial_name: 'test', trial_num: function () { return current_squares_practice_trial },
                 correct_response: function () {
                     if (condition[1] == 's') {
                         return 's'
@@ -407,6 +424,42 @@
                     correct = true;
                 }
                 data.is_correct = correct;
+                current_squares_practice_trial += 1;
+            }
+        }
+        var test = {
+            type: "html-keyboard-response",
+            stimulus: function () {
+                rand_num = getRandomInt(number_of_images - 1)
+                if (condition[1] == 's') { /* it is the same condition */
+                    square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
+                }
+                else { /* it is different condition */
+                    square = current_locations[rand_num] + jsPsych.randomization.sampleWithoutReplacement(change_detection_images.slice(number_of_images), 1) + ">"
+                }
+                return square + fixation
+            },
+            choices: ['s', 'k'],
+            trial_duration: 6000,
+            data: {
+                phase: 'exp', trial_name: 'test', trial_num: function () { return current_squares_exp_trial },
+                correct_response: function () {
+                    if (condition[1] == 's') {
+                        return 's'
+                    }
+                    else {
+                        return 'k'
+                    }
+                }
+            },
+            on_finish: function (data) {
+                condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
+                var correct = false;
+                if (data.correct_response == jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)) {
+                    correct = true;
+                }
+                data.is_correct = correct;
+                current_squares_exp_trial += 1;
             }
         }
         var feedback_squares = {
@@ -424,19 +477,19 @@
         }
 
         var demo_procedure_squares = {
-            timeline: [fixation_memory, memory, fixation_retention, test, feedback_squares],
-            repetitions: 2
+            timeline: [fixation_memory, memory_practice, fixation_retention, test_practice],
+            repetitions: 3
         }
 
         var test_procedure_squares = {
             timeline: [fixation_memory, memory, fixation_retention, test],
-            repetitions: 2
+            repetitions: 3
         }
 
         var full_procedure_squares = {
             timeline: [instructions_squares, demo_procedure_squares, test_instructions_squares, test_procedure_squares]
         }
-        //timeline.push(full_procedure_squares)
+        timeline.push(full_procedure_squares)
         /*---------------------------------------------------- 
         Cards starts
         ------------------------------------------------------*/
@@ -530,7 +583,7 @@
             }
         }
 
-        var instructsions_test = {
+        var instructions_loop = {
             timeline: [instructions_cards, instructions_test, check_answers],
             loop_function: function () {
                 if (to_repeat == true) {
@@ -559,8 +612,8 @@
         FB_matrix[1] = [0.25704, 0.25686, 0.26537, 0.32215, 0.2977, 0.31559, 0.29018, 0.24321, 0.24308, 0.27374, 0.28045, 0.31219, 0.3303, 0.30804, 0.37726, 0.40205, 0.37142, 0.34159, 0.31001, 0.30259, 0.25156, 0.28041, 0.29775, 0.33556, 0.33383, 0.27651, 0.31895, 0.3416, 0.31953, 0.27126, 0.28677, 0.27745, 0.23634, 0.18869, 0.1756, 0.16868, 0.16833, 0.16272, 0.16272, 0.16828, 0.23888, 0.215, 0.2362, 0.2198, 0.25504, 0.24835, 0.23921, 0.25358, 0.28813, 0.29193, 0.30125, 0.26231, 0.25296, 0.28666, 0.26313, 0.2301, 0.21956, 0.20996, 0.25839, 0.28052, 0.32197, 0.35135, 0.36251, 0.35102, 0.37592, 0.41482, 0.46239, 0.46043, 0.50986, 0.56564, 0.59565, 0.62044, 0.56731, 0.55831, 0.58139, 0.58884, 0.54916, 0.5071, 0.51807, 0.54408, 0.56728, 0.52195, 0.55915, 0.53774, 0.53981, 0.52355, 0.46647, 0.4676, 0.45075, 0.48408, 0.55282, 0.54373, 0.53274, 0.53184, 0.53568, 0.49976, 0.50574, 0.552, 0.51679, 0.53681];
         FB_matrix[2] = [0.5917, 0.64769, 0.70574, 0.68713, 0.68242, 0.70379, 0.71255, 0.70272, 0.67069, 0.65692, 0.65933, 0.64338, 0.65085, 0.64829, 0.69846, 0.71015, 0.70442, 0.74258, 0.7554, 0.73006, 0.75518, 0.72853, 0.74084, 0.68069, 0.71271, 0.68525, 0.67073, 0.67068, 0.648, 0.67646, 0.70308, 0.68574, 0.71904, 0.71133, 0.73911, 0.74918, 0.73149, 0.70956, 0.68745, 0.69793, 0.6233, 0.62599, 0.66243, 0.69599, 0.68707, 0.649, 0.60675, 0.59887, 0.63346, 0.69691, 0.66782, 0.69997, 0.72736, 0.70792, 0.67461, 0.6478, 0.65467, 0.6329, 0.6158, 0.60556, 0.64038, 0.63054, 0.58793, 0.56423, 0.55994, 0.56647, 0.54658, 0.49899, 0.50783, 0.57898, 0.54492, 0.48585, 0.48109, 0.48699, 0.46963, 0.48634, 0.46603, 0.47676, 0.45376, 0.40843, 0.39107, 0.40562, 0.35266, 0.33274, 0.31999, 0.34656, 0.37718, 0.37391, 0.38179, 0.40437, 0.4088, 0.33946, 0.33295, 0.31311, 0.32477, 0.37747, 0.36431, 0.35193, 0.33457, 0.32013];
         FB_matrix[3] = [0.37146, 0.29856, 0.30642, 0.2707, 0.25356, 0.25763, 0.1921, 0.20666, 0.19305, 0.19291, 0.18298, 0.18156, 0.19481, 0.15628, 0.18232, 0.21027, 0.20945, 0.22949, 0.20882, 0.23431, 0.24699, 0.19052, 0.2206, 0.21146, 0.19117, 0.21937, 0.23521, 0.27283, 0.33207, 0.33282, 0.3137, 0.32797, 0.33243, 0.33035, 0.37739, 0.38959, 0.39165, 0.43298, 0.4753, 0.45643, 0.46237, 0.46749, 0.47418, 0.47148, 0.46565, 0.48012, 0.51917, 0.56677, 0.551, 0.52118, 0.5035, 0.51614, 0.48258, 0.4852, 0.51321, 0.5236, 0.54053, 0.58072, 0.58066, 0.60732, 0.60788, 0.62424, 0.61417, 0.61129, 0.61249, 0.63833, 0.6153, 0.64763, 0.66878, 0.65734, 0.66195, 0.66565, 0.68452, 0.66885, 0.6788, 0.69809, 0.6875, 0.69827, 0.6978, 0.72358, 0.7295, 0.74277, 0.73044, 0.74494, 0.74108, 0.74222, 0.74686, 0.80182, 0.80182, 0.82339, 0.81468, 0.81121, 0.84829, 0.83158, 0.83158, 0.80201, 0.74137, 0.72785, 0.73865, 0.76278];
-        var current_practice_trial = 0;
-        var current_exp_trial = 0;
+        var current_cards_practice_trial = 0;
+        var current_cards_exp_trial = 0;
         var drawn_cards;
         var left_card;
         var right_card;
@@ -613,6 +666,28 @@
 
             return card_to_show + reward_to_show
         }
+
+        var memory_for_cards_prac = {
+            type: "html-keyboard-response",
+            stimulus: function () {
+                number_of_images = parseInt(condition_cards[0])
+                change_detection_images = jsPsych.randomization.shuffle(change_detection_images)
+                current_locations = get_locations(locations, number_of_images)
+                squares = '';
+                for (index = 0; index < number_of_images; index++) {
+                    squares += current_locations[index] + change_detection_images[index] + ">"
+                }
+                return squares + fixation;
+            },
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 200,
+            data: {
+                phase: 'practice', trial_name: 'memory_cards', trial_num: function () { return current_cards_practice_trial },
+                set_size: function () {
+                    return condition_cards[0]
+                }
+            }
+        }
         var memory_for_cards = {
             type: "html-keyboard-response",
             stimulus: function () {
@@ -628,7 +703,7 @@
             choices: jsPsych.NO_KEYS,
             trial_duration: 200,
             data: {
-                phase: 'practice', trial_name: 'memory_cards', trial_num: current_practice_trial,
+                phase: 'exp', trial_name: 'memory_cards', trial_num: function () { return current_cards_exp_trial },
                 set_size: function () {
                     return condition_cards[0]
                 }
@@ -641,7 +716,7 @@
             },
             choices: ['s', 'k'],
             trial_duration: 6000,
-            data: { phase: 'practice', trial_name: 'cards1', trial_num: current_practice_trial },
+            data: { phase: 'practice', trial_name: 'cards1', trial_num: function () { return current_cards_practice_trial } },
 
         }
 
@@ -650,7 +725,7 @@
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
             trial_duration: 500,
-            data: { phase: 'practice', trial_name: 'choice1', trial_num: current_practice_trial },
+            data: { phase: 'practice', trial_name: 'choice1', trial_num: function () { return current_cards_practice_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
                 if (selected == 0) {
@@ -664,11 +739,11 @@
         var practice_reward1 = {
             type: "html-keyboard-response",
             stimulus: function () {
-                return show_reward(current_practice_trial)
+                return show_reward(current_cards_practice_trial)
             },
             choices: jsPsych.NO_KEYS,
             trial_duration: 750,
-            data: { phase: 'practice', trial_name: 'reward1', trial_num: current_practice_trial }
+            data: { phase: 'practice', trial_name: 'reward1', trial_num: function () { return current_cards_practice_trial } }
         }
 
         var practice_cards2 = {
@@ -682,14 +757,14 @@
             },
             choices: ['s', 'k'],
             trial_duration: 6000,
-            data: { phase: 'practice', trial_name: 'cards2', trial_num: current_practice_trial }
+            data: { phase: 'practice', trial_name: 'cards2', trial_num: function () { return current_cards_practice_trial } }
         }
         var practice_choice2 = {
             type: "html-keyboard-response",
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
             trial_duration: 500,
-            data: { phase: 'practice', trial_name: 'choice2', trial_num: current_practice_trial },
+            data: { phase: 'practice', trial_name: 'choice2', trial_num: function () { return current_cards_practice_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
                 if (selected == 0) {
@@ -704,13 +779,49 @@
         var practice_reward2 = {
             type: "html-keyboard-response",
             stimulus: function () {
-                return show_reward(current_practice_trial)
+                return show_reward(current_cards_practice_trial)
             },
             choices: jsPsych.NO_KEYS,
             trial_duration: 750,
-            data: { phase: 'practice', trial_name: 'reward2', trial_num: current_practice_trial }
+            data: { phase: 'practice', trial_name: 'reward2', trial_num: function () { return current_cards_practice_trial } }
         }
 
+        var test_for_cards_prac = {
+            type: "html-keyboard-response",
+            stimulus: function () {
+                rand_num = getRandomInt(number_of_images - 1)
+                if (condition_cards[1] == 's') { /* it is the same condition */
+                    square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
+                }
+                else { /* it is different condition */
+                    square = current_locations[rand_num] + jsPsych.randomization.sampleWithoutReplacement(change_detection_images.slice(number_of_images), 1) + ">"
+                }
+                return square + fixation
+            },
+            choices: ['s', 'k'],
+            trial_duration: 6000,
+            data: {
+                phase: 'practice', trial_name: 'test_cards', trial_num: function () { return current_cards_practice_trial },
+                correct_response: function () {
+                    if (condition_cards[1] == 's') {
+                        return 's'
+                    }
+                    else {
+                        return 'k'
+                    }
+                }
+            },
+            on_finish: function (data) {
+                condition_cards = jsPsych.randomization.sampleWithoutReplacement(['1same', '1diff', '4same', '4diff'], 1)[0]
+                phase = jsPsych.data.getLastTrialData().values()[0].phase
+                current_cards_practice_trial += 1;
+                var correct = false;
+                if (data.correct_response == jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)) {
+                    correct = true;
+                }
+                data.is_correct = correct;
+            }
+        }
         var test_for_cards = {
             type: "html-keyboard-response",
             stimulus: function () {
@@ -726,7 +837,7 @@
             choices: ['s', 'k'],
             trial_duration: 6000,
             data: {
-                phase: 'practice', trial_name: 'test_cards', trial_num: current_practice_trial,
+                phase: 'exp', trial_name: 'test_cards', trial_num: function () { return current_cards_exp_trial },
                 correct_response: function () {
                     if (condition_cards[1] == 's') {
                         return 's'
@@ -738,7 +849,7 @@
             },
             on_finish: function (data) {
                 condition_cards = jsPsych.randomization.sampleWithoutReplacement(['1same', '1diff', '4same', '4diff'], 1)[0]
-                current_practice_trial += 1;
+                current_cards_exp_trial += 1;
                 var correct = false;
                 if (data.correct_response == jsPsych.pluginAPI.convertKeyCodeToKeyCharacter(data.key_press)) {
                     correct = true;
@@ -765,7 +876,7 @@
             stimulus: function () {
                 return '<p><b><u>Test block ' + (block + 1) + ' out of ' + (blocks + 1) + '</u></b></p>' + '<p style="text-align: left"> You will now start a test block. Below are the four cards that can appear in this round.</p>'
                     + '<p style="text-align: left">Use the LEFT or RIGHT response keys (‘s’ or ‘k’, in correspondence) to make your selection. <br> Do your best to win as many coins as possible!<br> </p>'
-                    + '<p style="text-align: left">Remember that: <br> 1) How ‘good’ each card is can change along the round <br> 2)Only the cards (not the response key that was used to select them) predict an outcome </p>'
+                    + '<p style="text-align: left">Remember that: <br> 1) How ‘good’ each card is can change along the round <br> 2) Only the cards (not the response key that was used to select them) predict an outcome </p>'
                     + '<p><b>Press SPACE to start</b></p>'
                     + '<img src="' + images_for_block_start()[0] + '">  ' + '<img src="' + images_for_block_start()[1] + '">    ' + '<img src="' + images_for_block_start()[2]
                     + '">    ' + '<img src="' + images_for_block_start()[3] + '">  '
@@ -783,7 +894,7 @@
             choices: [32],
             on_finish: function () {
                 block += 1;
-                current_exp_trial = 0;
+                current_cards_exp_trial = 0;
             }
         }
 
@@ -794,7 +905,7 @@
             },
             choices: ['s', 'k'],
             trial_duration: 6000,
-            data: { phase: 'exp', trial_name: 'cards1', trial_num: current_exp_trial },
+            data: { phase: 'exp', trial_name: 'cards1', trial_num: function () { return current_cards_exp_trial } },
 
         }
 
@@ -803,7 +914,7 @@
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
             trial_duration: 500,
-            data: { phase: 'exp', trial_name: 'choice1', trial_num: current_exp_trial },
+            data: { phase: 'exp', trial_name: 'choice1', trial_num: function () { return current_cards_exp_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
                 if (selected == 0) {
@@ -817,11 +928,11 @@
         var exp_reward1 = {
             type: "html-keyboard-response",
             stimulus: function () {
-                return show_reward(current_exp_trial)
+                return show_reward(current_cards_exp_trial)
             },
             choices: jsPsych.NO_KEYS,
             trial_duration: 750,
-            data: { phase: 'exp', trial_name: 'reward1', trial_num: current_exp_trial }
+            data: { phase: 'exp', trial_name: 'reward1', trial_num: function () { return current_cards_exp_trial } }
         }
 
         var exp_cards2 = {
@@ -835,7 +946,7 @@
             },
             choices: ['s', 'k'],
             trial_duration: 6000,
-            data: { phase: 'exp', trial_name: 'cards2', trial_num: current_exp_trial },
+            data: { phase: 'exp', trial_name: 'cards2', trial_num: function () { return current_cards_exp_trial } },
 
         }
 
@@ -844,7 +955,7 @@
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
             trial_duration: 500,
-            data: { phase: 'exp', trial_name: 'choice2', trial_num: current_exp_trial },
+            data: { phase: 'exp', trial_name: 'choice2', trial_num: function () { return current_cards_exp_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
                 if (selected == 0) {
@@ -858,43 +969,43 @@
         var exp_reward2 = {
             type: "html-keyboard-response",
             stimulus: function () {
-                return show_reward(current_exp_trial)
+                return show_reward(current_cards_exp_trial)
             },
             choices: jsPsych.NO_KEYS,
             trial_duration: 750,
-            data: { phase: 'exp', trial_name: 'reward2', trial_num: current_exp_trial }
+            data: { phase: 'exp', trial_name: 'reward2', trial_num: function () { return current_cards_exp_trial } }
         }
 
 
         var demo_procedure_cards = {
-            timeline: [fixation_memory, memory_for_cards, fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2, test_for_cards, feedback_squares],
-            repetitions: 50
+            timeline: [fixation_memory, memory_for_cards_prac, fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2, test_for_cards_prac, feedback_squares],
+            repetitions: 3
         }
-        timeline.push(demo_procedure_cards)
         var test_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards, fixation_cards, exp_cards1, exp_choice1, exp_reward1, fixation_cards, exp_cards2, exp_choice2, exp_reward2, test_for_cards],
-            repetitions: 2
+            repetitions: 3
         }
 
         var test_blocks = {
             timeline: [start_block, test_procedure_cards, finish_block],
             repetitions: 4
         };
-        //timeline.push(test_blocks);
         var full_procedure_cards = {
-            timeline: [instructions_test, start_practice_cards, demo_procedure_cards, start_exp_cards, test_blocks]
+            timeline: [instructions_loop, start_practice_cards, demo_procedure_cards, start_exp_cards, test_blocks]
         }
-        //timeline.push(full_procedure_cards)
+        timeline.push(full_procedure_cards)
+
+        var conclusion = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.</div>'
+        }
+        timeline.push(conclusion)
 
         timeline.push({
             type: 'fullscreen',
             fullscreen_mode: false
         });
-        var conclusion = {
-            type: 'html-keyboard-response',
-            stimulus: '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.</div>'
-        }
-        //timeline.push(conclusion)
+
 
         var IDsub = Date.now();
         local = true;
@@ -912,7 +1023,7 @@
                 }
             }
         }
-        // timeline.push(dataLog)
+        timeline.push(dataLog)
 
         function download_csv(csv) {
             var hiddenElement = document.createElement('a');
@@ -925,18 +1036,18 @@
         jsPsych.init({
             timeline: timeline,
             preload_images: change_detection_images, practice_deck_images, test_deck_images, reward_images, example_images,
-            show_preload_progress_bar: true, // hide preload progress bar
-            /*on_finish: function () {
-            jsPsych.data.displayData();
-            data = jsPsych.data.get.csv()
-            download_csv(data)
-        },
-        on_close: function () {
-            data = jsPsych.data.get().csv();
-            download_csv(data)
-        }
-    });*/
-        })
+            show_preload_progress_bar: true,
+            on_finish: function () {
+                jsPsych.data.displayData();
+                data = jsPsych.data.get.csv()
+                download_csv(data)
+            },
+            on_close: function () {
+                data = jsPsych.data.get().csv();
+                download_csv(data)
+            }
+        });
+
 
     </script>
 </body>
