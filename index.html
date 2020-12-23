@@ -344,7 +344,9 @@
                 "<img src='images/squares/example3.png'>" +
                 "<p>You need to press <b>'k'</b> if the color of the individual square is different than in the group picture.</p>", "<p>We will now start a practice trial.</p>" +
                 "<p>Please remember to press <b>'s'</b> if the square is the same and <b>'k'</b> if it is different</p>"],
-            show_clickable_nav: true
+            show_clickable_nav: true,
+            post_trial_gap: 1000,
+            on_finish: function () { document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>') },
         };
         var test_instructions_squares = {
             type: 'html-keyboard-response',
@@ -478,17 +480,17 @@
                 return feedback_text
             },
             choices: jsPsych.NO_KEYS,
-            trial_duration: 2000
+            trial_duration: 500
         }
 
         var demo_procedure_squares = {
-            timeline: [fixation_memory, memory_practice, fixation_retention, test_practice],
-            repetitions: 3
+            timeline: [fixation_memory, memory_practice, fixation_retention, test_practice, feedback_squares],
+            repetitions: 1
         }
 
         var test_procedure_squares = {
-            timeline: [fixation_memory, memory, fixation_retention, test],
-            repetitions: 3
+            timeline: [fixation_memory, memory, fixation_retention, test, feedback_squares],
+            repetitions: 1
         }
 
         var full_procedure_squares = {
@@ -505,6 +507,11 @@
             , 'images/card deck 5/17.jpg', 'images/card deck 5/18.jpg', 'images/card deck 5/19.jpg', 'images/card deck 5/20.jpg']
         var reward_images = ['images/zero_coins.PNG', 'images/won1-no-back1.png']
         var instructions_cards = {
+            on_start: function () {
+                if (document.querySelector('#cursor-toggle') != null) {
+                    document.querySelector('#cursor-toggle').remove()
+                }
+            },
             type: "instructions",
             pages: ["<p><b>Welcome to the card game part</b></p>"
                 + "<p style='text-align:left'>Your winnings in this part will earn you additional payment bonus for the study."
@@ -522,8 +529,8 @@
             + "<b>Winning very much depends on the card you chose. Some cards are better than others in their deck.</b><br>"
             + "Your task is to find out which card is the best in each deck at any time and choose it."
             + "<p style='text-align:left'><u>Two important things to remember:</u><br></p>"
-            + "1. <b>How good a card is can change along the game</b>, somewhat like the value of market products that sometimes worth more and sometimes less.<br>"
-            + "2. Only the cards predict an outcome. <b>The response key that was used to select a card does not influence the chances of winning a coin.</b><br><br>"
+            + "1. <b>How good a card is can change along the game</b>, somewhat like the value of market products that sometimes worth more and sometimes less."
+            + "<br>2. Only the cards predict an outcome. <b>The response key that was used to select a card does not influence the chances of winning a coin.</b><br><br>"
             + "<img class='example' src='images/card deck 1/reward_example.png'>",
             "<p style='text-align:left'>At the start of the card game, we will first provide you with 100 game-coins."
             + " In the end of the experiment, these will be exchanged to a bonus of up to £2.5."
@@ -531,12 +538,12 @@
             + " On every step, <b>try to be focused and find the card that is more likely to earn you a coin.</b>",
             " <p style='text-align:left'>We will play the card game and the squares game simultaneously. It means that you will have two goals."
             + " <b>One goal is to remember the colors of the squares like beforehand, and the second is to learn which cards are more rewarding.</b> "
+            + " <b><br> To get the bonus for the card game, your accuracy in the squares game must be better than chance. </b>"
             + "<br> As always pressing <b>'s'</b> means you think the shown square is in the same color and pressing <b>'k'</b> means you think it is different. "
             + " <br><br> You will now move on to a quick test to make sure that you understood the instructions."
-            + " You can use the previous button the read again through the instructions, in case you need to.</p>"],
-            show_clickable_nav: true
+            + " You can use the previous button to read again through the instructions, in case you need to.</p>"],
+            show_clickable_nav: true,
         };
-
         var Q1_2_options = ["2", "4", "6"];
         var Q3_4_options = ["Click on it", "Press the LEFT or RIGHT arrow keys", "Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand."];
         var Q5_6_options = ["True", "False"];
@@ -551,7 +558,7 @@
                 { prompt: "How do you choose a card?", name: 'choose_card', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q3_4_options, required: true },
                 { prompt: "How do you choose if a square is same or different?", name: 'choose_square', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q3_4_options, required: true },
                 { prompt: "Some cards are better than others.", name: 'better_cards', correct: 'True', options: Q5_6_options, required: true },
-                { prompt: "How ‘good’ or ‘bad’ a card is will not change along the game.", name: 'value_change', correct: 'False', options: Q5_6_options, required: true },
+                { prompt: "How ‘good’ or ‘bad’ a card is <u>will not</u> change along the game.", name: 'value_change', correct: 'False', options: Q5_6_options, required: true },
                 { prompt: "What is the goal in the game?", name: 'game_goal', correct: 'The goal is to remember the squares and learn which cards are better', options: Q7_options, required: true },
                 { prompt: "The outcome you might get very much depends on whether you used the RIGHT or LEFT response key.", name: 'location_value', correct: 'False, only cards predict the outcome', options: Q8_options, required: true }
             ],
@@ -602,7 +609,8 @@
         var start_practice_cards = {
             type: 'html-keyboard-response',
             stimulus: '<div>We will now start a few practice trials. <br> Please be ready with your fingers on <b>"s"</b> and <b>"k"</b> <br><br> <b> Press any key to begin.</b></div>',
-            post_trial_gap: 1000
+            post_trial_gap: 1000,
+            on_finish: function () { document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>') },
         }
 
         var fixation_cards = {
@@ -879,10 +887,9 @@
 
         var start_exp_cards = {
             type: 'html-keyboard-response',
-            stimulus: '<div> Good job. Practice completed! <br> <br> We will now move on to the real game. Before we start – we would like to give you 100 game coins to start with. Remember – these will be converted to actual bonus payment in the end of the experiment. Do your best to win as much and lose as little coins as possible! <b><img src="images/bag of coins1.png"><br> Press any key to begin.</b></div>',
+            stimulus: '<div> Good job. Practice completed! <br> <br> We will now move on to the real game. Before we start – we would like to give you 100 game coins to start with. Remember – these will be converted to actual bonus payment in the end of the experiment. Do your best to win as much and lose as little coins as possible! <b><br><img src="images/bag of coins1.png"><br> Press any key to begin.</b></div>',
             post_trial_gap: 1000
         }
-
         var draw_cards;
         var block = 0;
         var blocks = 3;
@@ -906,8 +913,14 @@
         var finish_block = {
             type: 'html-keyboard-response',
             stimulus: function () {
-                return '<p>Good job!</p>' + '<p style="text-align: left"><br> Test block ' + (block + 1) + ' out of ' + (blocks + 1) + ' is over.'
-                    + ' You can stretch a little and take a short break while sitting in front of the screen, if needed.</p><p> <br><br><br><b>Press SPACE to start</b>  </p>'
+                finish_block_string = '<p>Good job!</p>' + '<p style="text-align: left"><br> Test block ' + (block + 1) + ' out of ' + (blocks + 1) + ' is over.'
+                if (block != 3) {
+                    finish_block_string += ' You can stretch a little and take a short break while sitting in front of the screen, if needed.</p><p> <br><br><br><b>Press SPACE to continue</b>  </p>'
+                }
+                else {
+                    finish_block_string += ' We will now continue to fill up some questionnaires.</p><p> <br><br><br><b>Press SPACE to continue</b>  </p>'
+                }
+                return finish_block_string
             },
             post_trial_gap: 1000,
             choices: [32],
@@ -1004,11 +1017,11 @@
 
         var demo_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards_prac, fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2, test_for_cards_prac, feedback_squares],
-            repetitions: 2
+            repetitions: 1
         }
         var test_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards, fixation_cards, exp_cards1, exp_choice1, exp_reward1, fixation_cards, exp_cards2, exp_choice2, exp_reward2, test_for_cards],
-            repetitions: 5
+            repetitions: 1
         }
 
         var test_blocks = {
@@ -1024,11 +1037,22 @@
             type: 'html-keyboard-response',
             stimulus: function () {
                 var feedback_string = '<div style="font-size:20px;">This task is over. Thank you for your participation in this task.<br>';
-                var number_of_reward1 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward1' }).select('reward').sum()
-                var number_of_reward2 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward2' }).select('reward').sum()
-                var bonus = 0.1 * (number_of_reward1 + number_of_reward2)
-                var bonus_string = bonus.toFixed(1)
-                feedback_string += 'Your bonus is: ' + bonus_string + 'Pounds </div>'
+                var correct_test_square = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'test_cards' }).select('is_correct').sum()
+                var total_test_square = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'test_cards' }).select('is_correct').count()
+                var test_square_accuracy = correct_test_square / total_test_square;
+                var accuracy_string = (test_square_accuracy * 100).toFixed(2) + '%'
+                feedback_string += 'Your accuracy was: ' + accuracy_string
+                if (test_square_accuracy <= 0.6) {
+                    feedback_string += '<br>You are not entitled for a bonus.'
+                }
+                else {
+                    var number_of_reward1 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward1' }).select('reward').sum()
+                    var number_of_reward2 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward2' }).select('reward').sum()
+                    var bonus = 0.1 * (number_of_reward1 + number_of_reward2)
+                    var bonus_string = bonus.toFixed(1)
+                    feedback_string += '<br> Your bonus is: ' + bonus_string + 'Pounds </div>'
+                }
+
                 return feedback_string
             }
 
@@ -1073,7 +1097,7 @@
             show_preload_progress_bar: true,
             on_finish: function () {
                 jsPsych.data.displayData();
-                data = jsPsych.data.get.csv()
+                data = jsPsych.data.get().csv()
                 download_csv(data)
             },
             on_close: function () {
