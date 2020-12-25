@@ -315,7 +315,7 @@
                 + '<br><br>Press <b>"Y"</b> to confirm that you read and accept the terms mentioned above.</p>',
             choices: 'y'
         };
-        timeline.push(welcome) //45sec
+        // timeline.push(welcome) //45sec
         timeline.push({
             type: 'fullscreen',
             fullscreen_mode: true,
@@ -500,7 +500,7 @@
         var full_procedure_squares = {
             timeline: [instructions_squares, demo_procedure_squares, test_instructions_squares, test_procedure_squares]
         } //instructions takes 60sec total
-        timeline.push(full_procedure_squares)
+        //timeline.push(full_procedure_squares)
         /*---------------------------------------------------- 
         Cards starts
         ------------------------------------------------------*/
@@ -1071,8 +1071,8 @@
         var full_procedure_cards = {
             timeline: [instructions_loop, start_practice_only_cards, demo_procedure_only_cards, start_practice_cards, demo_procedure_cards, start_exp_cards, test_blocks]
         } //instructions+test takes 180sec 
-        timeline.push(full_procedure_cards)
-        //timeline.push(start_exp_cards)
+        // timeline.push(full_procedure_cards)
+        timeline.push(start_exp_cards)
         var conclusion = {
             type: 'html-keyboard-response',
             stimulus: function () {
