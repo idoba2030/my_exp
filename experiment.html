@@ -827,7 +827,7 @@
             type: "html-keyboard-response",
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
-            trial_duration: 3000,
+            trial_duration: 500,
             data: { phase: 'practice', trial_name: 'choice1', trial_num: function () { return current_cards_practice_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
