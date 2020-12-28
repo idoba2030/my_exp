@@ -22,6 +22,10 @@
         width: 200px;
     }
 
+    p {
+        padding: 10px
+    }
+
     img.keyboard {
         height: 215px;
         width: 517px;
@@ -304,15 +308,14 @@
         var timeline = [];
 
         var welcome = {
-            type: 'html-keyboard-response',
-            stimulus: '<p style="text-align: left">Welcome to the experiment.<br><br>This study, performed by Tel Aviv University, is aimed at gaining a better understanding of learning and memory processes. Your results may help our lab develop better clinical treatments.<br>'
+            type: 'html-button-response',
+            stimulus: '<p style="text-align: left">Welcome to the experiment.<br><br>This study, performed by Tel Aviv University, is aimed at gaining a better understanding of learning and memory processes. Your contribution may help our lab develop better clinical treatments.<br>'
                 + "In this study we will ask you to complete a memory game called the 'squares game' and a card game, followed by several questionnaires.<br> The study should take about <b>50 minutes</b>.<br><br>"
                 + 'For your participation, <b>you will earn a minimum of £4, but may earn up to £6 (in total) based on your performance</b> in the included card game.<br>'
                 + ' You are free to leave at any time by pressing ‘Esc’ and closing your browser but please note that full payment is provided only for full participation.<br> <b>Please be assured that all data is collected anonymously.</b><br>'
                 + '<br><b>Restrictions:</b> You can only participate if you are aged 18 to 50 and are not currently diagnosed with depression, anxiety, epilepsy, learning disabilities, color blindness, or any other psychiatric or neurological disorders.'
-                + '<br>Thank you for your participation and please feel free to contact us using the Prolific platform for any question you might have.'
-                + '<br><br>Press <b>"Y"</b> to confirm that you read and accept the terms mentioned above.</p>',
-            choices: 'y'
+                + '<br>Thank you for your participation and please feel free to contact us using the Prolific platform for any question you might have.',
+            choices: ['I confirm that I read and accept the terms mentioned above']
         };
         timeline.push(welcome) //45sec
         timeline.push({
@@ -333,7 +336,11 @@
 
         var instructions_squares = {
             type: "instructions",
-            pages: ["The experiment will have two parts, we will now start the first one called the <b>'squares game'</b> <br>(You may continue to the next page with the right arrow key and return to the previous with the left one)", "<p>In this part of the experiment, you will see a plus in the middle of the screen.</p>" +
+            pages: ["The experiment will have two parts, we will now start the first one, called the <b>'squares game'</b>.",
+                "<p>We will now provide instructions regarding the squares game. <b>Please read them carefully.</b> <br>",
+                "Feel free to go back and forth between the screens using the arrows (left=previous, right=next) or the buttons at the bottom of the screen.</p> "
+                , "<p>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>"
+                , "<p>In this part of the experiment, you will see a plus in the middle of the screen.</p>" +
                 "<p> We want you to focus on the plus during the whole experiment.</p> " + "<img src='images/fixation.png'>",
                 "<p> Then, 4 or 8 colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
                 "<img src='images/squares/example1.png'>",
@@ -342,7 +349,7 @@
                 "<p> You need to press <b>'s'</b> if you think the color is the same as in the group picture.</p>" +
                 "<img src='images/squares/example2.png'>",
                 "<p> You need to press <b>'k'</b> if you think the color is different than in the group picture.</p>" +
-                "<img src='images/squares/example3.png'>"],
+                "<img src='images/squares/example3.png'>", "<p> We will now ask you to complete a short test to make sure that you understood the instructions."],
             show_clickable_nav: true,
         };
 
@@ -406,10 +413,9 @@
                 }
             }
         }
-
         var start_practice_squares = {
             type: 'html-keyboard-response',
-            stimulus: "<p> We will now start some practice trials.<br> You may already be ready with your fingers on 's' and 'k' <br><img class=keyboard src='images/keyboard.png'> <br> <u>Please try to be as accurate as possible for the experiment to succeed.</u> <br><b>Press any key to begin</b></u>",
+            stimulus: "<p> We will now start some practice trials.<br> You may already want to be ready with your fingers on '<b>s'</b> and <b>'k'</b>. <br><img class=keyboard src='images/keyboard.png'> <br> <u>Please try to be as accurate as possible for the experiment to succeed.</u> <br><br><b>Press any key to begin</b></u>",
             post_trial_gap: 1000,
             on_finish: function () { document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>') },
         }
@@ -417,7 +423,7 @@
 
         var start_exp_squares = {
             type: 'html-keyboard-response',
-            stimulus: '<p>Good Job! <br> You have finished the practice trials.<br> We will now start the real experiment. Please try to be as accurate as possible <br> <br> <b> Press any key to begin.</p>'
+            stimulus: '<p>Good Job! <br> You have finished the practice trials.<br> We will now start the real experiment. Please try to be as accurate as possible. <br> <br> <b> Press any key to begin</p>'
         };
         var current_squares_practice_trial = 0;
         var current_squares_exp_trial = 0;
@@ -493,6 +499,9 @@
                 if (data.correct_response == data.key_press) {
                     correct = true;
                 }
+                else if (data.key_press == null) {
+                    correct = null;
+                }
                 data.is_correct = correct;
                 current_squares_practice_trial += 1;
             }
@@ -536,6 +545,9 @@
                 if (data.correct_response == data.key_press) {
                     correct = true;
                 }
+                else if (data.key_press == null) {
+                    correct = null;
+                }
                 data.is_correct = correct;
                 current_squares_exp_trial += 1;
             }
@@ -547,6 +559,9 @@
                 last_trial_correct = jsPsych.data.getLastTrialData().values()[0].is_correct;
                 if (last_trial_correct == true) {
                     feedback_text = 'correct'
+                }
+                else if (last_trial_correct == null) {
+                    feedback_text = 'Please respond faster'
                 }
                 return feedback_text
             },
@@ -570,7 +585,7 @@
         /*---------------------------------------------------- 
         Cards starts
         ------------------------------------------------------*/
-        var example_images = ['images/squares/example1.png', 'images/squares/example2.png', 'images/squares/example3.png', 'images/card deck 1/group.jpg', 'images/bag of coins1.png']
+        var example_images = ['images/squares/example1.png', 'images/squares/example2.png', 'images/squares/example3.png', 'images/card deck 1/group.jpg']
         var practice_deck_images = ['images/card deck 1/1.jpg', 'images/card deck 1/2.jpg', 'images/card deck 1/3.jpg', 'images/card deck 1/4.jpg']
         var test_deck_images = ['images/card deck 2/5.jpg', 'images/card deck 2/6.jpg', 'images/card deck 2/7.jpg', 'images/card deck 2/8.jpg', 'images/card deck 3/9.jpg', 'images/card deck 3/10.jpg', 'images/card deck 3/11.jpg', 'images/card deck 3/12.jpg'
             , 'images/card deck 4/13.jpg', 'images/card deck 4/14.jpg', 'images/card deck 4/15.jpg', 'images/card deck 4/16.jpg'
@@ -589,17 +604,17 @@
                 + " If no extra money will be earned in the card game, you will still get £4 for completing the study."
                 + " However, <b>you can gain up to an extra £2 based on winnings in the game.</b></p>",
             "<p style='text-align:left'> We will now provide instructions regarding the card game. Please read them carefully. <br>"
-            + "You can freely go back and forth between the screens using the arrows or the buttons at the bottom of the screen.</p> "
+            + "As always, feel free to go back and forth between the screens.</p> "
             + "<p style='text-align:left'>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>",
             "<p style='text-align:left'> Below is an example of a card-deck of four cards, very much like the cards in the game to follow. </p>" +
-            "<img class='group' src='images/card deck 1/group.jpg' >",
+            "<img class='group' src='images/group.jpg' >",
             "<p> On each step, only two cards from this deck will be offered (as shown in the example below).<br>You will be able to select the left card by pressing <b>'s'</b> and the right card by pressing <b>'k'</b> on your keyboard."
-            + " <br><br>Please do your best to respond as fast and accurate as you can.<br><br>"
-            + "<img class='example' src='images/card deck 1/example.png' >",
+            + " <br><br><u>Please do your best to respond as fast and accurate as you can.</u><br><br>"
+            + "<img class='example' src='images/example.jpg' >",
             "<p style='text-align:left'>After selecting the card, you will see an outcome in the middle of the screen, as shown below.<br>"
             + "<b>Winning very much depends on the card you chose. Some cards are better than others in their deck.</b><br>"
             + "Your task is to find out which card is the best in each deck at any time and choose it.</p>"
-            + "<br> <img class='example' src='images/card deck 1/reward_example.png'>",
+            + "<br> <img class='example' src='images/reward_example.jpg'>",
             "<p style='text-align:left'><u>Two important things to remember:</u><br>"
             + "1. <b>How good a card is can change along the game</b>, somewhat like the value of market products that sometimes worth more and sometimes less."
             + "<br>2. Only the cards predict an outcome. <b>The response key that was used to select a card does not influence the chances of winning a coin.</b></p>"],
@@ -614,8 +629,8 @@
             type: "instructions",
             pages: [" <p style='text-align:left'>In the experiment we will play the card game and the squares game simultaneously. It means that you will have two goals."
                 + " <b><br>One goal is to remember the colors of the squares like beforehand, and the second is to learn which cards are more rewarding.</b> ",
-                "Like before, in the squares part pressing <b>'s'</b> means you think the shown square is in the same color and pressing <b>'k'</b> means you think it is different. ",
-                "<p style='text-align:left'> In the cards game pressing <b>'s'</b> means you think the left card is better and pressing <b>'k'</b> means you think the right card is better. </p>",
+                "Like before in the squares part, pressing <b>'s'</b> means you think the shown square is in the same color, and pressing <b>'k'</b> means you think it is different. ",
+                "<p style='text-align:left'> In the card game, pressing <b>'s'</b> means you think the left card is better, and pressing <b>'k'</b> means you think the right card is better. </p>",
             " <br><br> You will now move on to a quick test to make sure you understood the instructions."
             + " You can use the previous button to read again through the instructions, in case you need to.</p>"]
             , show_clickable_nav: true
@@ -677,13 +692,13 @@
 
         var start_practice_only_cards = {
             type: 'html-keyboard-response',
-            stimulus: '<div>We will now do a few practice trials which will contain only the cards part without the squares. <br> Please be ready with your fingers on <b>"s"</b> and <b>"k"</b> <br><br> <b> Press any key to begin.</b></div>',
+            stimulus: '<div>We will now do a few practice trials which will contain only the cards part without the squares. <br> Please be ready with your fingers on <b>"s"</b> and <b>"k".</b> <br><br> <b> Press any key to begin</b></div>',
             post_trial_gap: 1000,
             on_finish: function () { document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>') },
         }
         var start_practice_cards = {
             type: 'html-keyboard-response',
-            stimulus: '<div>We will now start a few practice trials with both the cards and the squares. <br> Please be ready with your fingers on <b>"s"</b> and <b>"k"</b> <br><br> <b> Press any key to begin.</b></div>',
+            stimulus: '<div>We will now start a few practice trials with both the cards and the squares. <br> Please be ready with your fingers on <b>"s"</b> and <b>"k"</b> <br><br> <b> Press any key to begin</b></div>',
             post_trial_gap: 1000,
         }
 
@@ -768,7 +783,7 @@
                 return squares + fixation;
             },
             choices: jsPsych.NO_KEYS,
-            trial_duration: 200,
+            trial_duration: 3000,
             data: {
                 phase: 'practice', trial_name: 'memory_cards', trial_num: function () { return current_cards_practice_trial },
                 set_size: function () {
@@ -812,7 +827,7 @@
             type: "html-keyboard-response",
             stimulus: show_choice,
             choices: jsPsych.NO_KEYS,
-            trial_duration: 500,
+            trial_duration: 3000,
             data: { phase: 'practice', trial_name: 'choice1', trial_num: function () { return current_cards_practice_trial } },
             on_finish: function (data) {
                 data.key_selected = selected
@@ -918,6 +933,10 @@
                 if (data.correct_response == data.key_press) {
                     correct = true;
                 }
+
+                else if (data.key_press == null) {
+                    correct = null;
+                }
                 data.is_correct = correct;
             }
         }
@@ -958,13 +977,17 @@
                 if (data.correct_response == data.key_press) {
                     correct = true;
                 }
+
+                else if (data.key_press == null) {
+                    correct = null;
+                }
                 data.is_correct = correct;
             }
         }
 
         var start_exp_cards = {
             type: 'html-keyboard-response',
-            stimulus: '<div> Good job. Practice completed! <br> <br> We will now move on to the real game. Do your best to remember the colors and to figure out which cards are better. Good luck!<br><br> <b>Press any key to continue.</b></div>',
+            stimulus: '<div> Good job! Practice completed. <br> <br> We will now move on to the real game. Do your best to remember the colors and to figure out which cards are better. Good luck!<br><br> <b>Press any key to continue.</b></div>',
             post_trial_gap: 1000
         }
         var draw_cards;
