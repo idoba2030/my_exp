@@ -11,12 +11,13 @@
     <script src="plugins/jspsych-survey-multi-choice.js"></script>
     <script src="plugins/jspsych-fullscreen.js"></script>
     <script src="plugins/jspsych-html-button-response.js"></script>
+    <script src="plugins/jspsych-html-slider-response.js"></script>
 
     <link href="css/my_exp.css" rel="stylesheet" type="text/css">
     <link href="css/jspsych.css" rel="stylesheet" type="text/css">
-    <!--This experiment consists of three parts (currently one one is in the making)
-    The first part is a change detection task, the second is a two-armed bandit task 
-    and finally we have a combined version of the two "dual task". The code is based on jspsych package.-->
+    <!--This experiment consists of three parts.
+    The first part is a change detection task, the second is a dual task of both change detection and two-armed bandit task.
+    the third is questionnaires. The code is based on jspsych package. Check the tutorials to understand what's going on here-->
 </head>
 <style>
     /* all the css is in my_exp.css */
@@ -27,8 +28,9 @@
         /*this defines the css properties according to the window_screen_size*/
         var root = document.documentElement;
         var vis_angle_px = 105
-        root.style.setProperty('--top_fix', window.screen.height / 2 + "px");
-        root.style.setProperty('--left_fix', window.screen.width / 2 + "px");
+        var square_width = 51.4
+        root.style.setProperty('--top_middle', window.screen.height / 2 + "px");
+        root.style.setProperty('--left_middle', window.screen.width / 2 - (square_width / 2) + "px");
         root.style.setProperty('--top_a', window.screen.height / 2 - vis_angle_px + "px");
         root.style.setProperty('--left_a', window.screen.width / 2 - vis_angle_px + "px");
         root.style.setProperty('--top_b', window.screen.height / 2 - 2 * vis_angle_px + "px");
@@ -53,6 +55,15 @@
         root.style.setProperty('--left_k', window.screen.width / 2 - 2 * vis_angle_px + "px");
         root.style.setProperty('--bottom_l', window.screen.height / 2 - 3 * vis_angle_px + "px");
         root.style.setProperty('--left_l', window.screen.width / 2 - 3 * vis_angle_px + "px");
+
+        root.style.setProperty('--upper1', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--upper2', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--upper3', window.screen.height / 2 - vis_angle_px + "px");
+
+        root.style.setProperty('--lower1', window.screen.height / 2 - 3 * vis_angle_px + "px");
+        root.style.setProperty('--lower2', window.screen.height / 2 - 2 * vis_angle_px + "px");
+        root.style.setProperty('--lower3', window.screen.height / 2 - vis_angle_px + "px");
+
         //---------------------------------------------------------------------------------------------
         root.style.setProperty('--left_card', window.screen.width / 2 - 2 * vis_angle_px + "px");
         root.style.setProperty('--right_card', window.screen.width / 2 - 2 * vis_angle_px + "px");
@@ -68,7 +79,7 @@
             type: 'html-button-response',
             stimulus: '<p style="text-align: left">Welcome to the experiment.<br><br>This study, performed by Tel Aviv University, is aimed at gaining a better understanding of learning and memory processes. Your contribution may help our lab develop better clinical treatments.<br>'
                 + "In this study we will ask you to complete a memory game called the 'squares game' and a card game, followed by several questionnaires.<br> The study should take about <b>50 minutes</b>.<br><br>"
-                + 'For your participation, <b>you will earn a minimum of £4, but may earn up to £6 (in total) based on your performance</b> in the included card game.<br>'
+                + 'For your participation, <b>you will earn a minimum of £4, but may earn up to £5 (in total) based on your performance</b> in the included card game.<br>'
                 + ' You are free to leave at any time by pressing ‘Esc’ and closing your browser but please note that full payment is provided only for full participation.<br> <b>Please be assured that all data is collected anonymously.</b><br>'
                 + '<br><b>Restrictions:</b> You can only participate if you are aged 18 to 50 and are not currently diagnosed with depression, anxiety, epilepsy, learning disabilities, color blindness, or any other psychiatric or neurological disorders.'
                 + '<br>Thank you for your participation and please feel free to contact us using the Prolific platform for any question you might have.',
@@ -93,10 +104,14 @@
         /*---------------------------------------------------- 
         Squares game starts
         ------------------------------------------------------*/
+
+        var mapping = jsPsych.randomization.sampleWithoutReplacement(['sk', 'ks'], 1)[0]
         /* getting the images to display */
         var change_detection_images = ['images/squares/black.png', 'images/squares/blue.png', 'images/squares/brown.png', 'images/squares/cyan.png', 'images/squares/green.png', 'images/squares/magenta.png', 'images/squares/orange.png', 'images/squares/red.png', 'images/squares/yellow.png']
         /* setting the locations to randomize from */
-        var locations = ["<img class='a' src=", "<img class='b' src=", "<img class='c' src=", "<img class='d' src=", "<img class='e' src=", "<img class='f' src=", "<img class='g' src=", "<img class='h' src=", "<img class='i' src=", "<img class='j' src=", "<img class='k' src=", "<img class='l' src="]
+        var locations = ["<img class='a' src=", "<img class='b' src=", "<img class='c' src=", "<img class='d' src=", "<img class='e' src=", "<img class='f' src=", "<img class='g' src=", "<img class='h' src=", "<img class='i' src=", "<img class='j' src=", "<img class='k' src=", "<img class='l' src=",]
+        var locations_setsize1 = ["<img class='upper1' src=", "<img class='upper2' src=", "<img class='upper3' src=", "<img class='lower1' src=", "<img class='lower2' src=", "<img class='lower3' src="]
+
         /* functions for squares game */
 
         //This function decides on a random location for the test square
@@ -109,10 +124,10 @@
         }
         /*This function picks the locations in which it will be shown 
          It also takes care of randomizing the different quadrants   */
-        function get_locations(locations_arr, number_of_images) {
+        function get_locations(locations_arr, number_of_images, locations_arr1) {
             random_locations = [];
             if (number_of_images == 1) {
-                return jsPsych.randomization.sampleWithoutReplacement(locations_arr, 1)
+                return jsPsych.randomization.sampleWithoutReplacement(locations_arr1, 1)
             }
             for (var i = 0; i < 4; i++) {
                 random_2_locations = jsPsych.randomization.sampleWithoutReplacement(locations_arr.slice(i * 3, i * 3 + 3), 2)
@@ -124,17 +139,17 @@
             return random_locations
         }
         /*This function combines the squares and the locations that were randomly chosen */
-        function generate_random_squares() {
+        function generate_random_squares(condition) {
             number_of_images = parseInt(condition[0])
             change_detection_images = jsPsych.randomization.shuffle(change_detection_images)
-            current_locations = get_locations(locations, number_of_images)
+            current_locations = get_locations(locations, number_of_images, locations_setsize1)
             squares = '';
             for (index = 0; index < number_of_images; index++) {
                 squares += current_locations[index] + change_detection_images[index] + ">"
             }
             return squares + fixation;
         }
-        var condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
+        var condition_squares_exp = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
         var fixation = '<div class="fixation">+</div>'
 
         /*---------------------------------------------------- 
@@ -147,22 +162,21 @@
         var instructions_squares = {
             type: "instructions",
             pages: ["The experiment will have two parts, we will now start the first one, called the <b>'squares game'</b>.",
-                "<p>We will now provide instructions regarding the squares game. <b>Please read them carefully.</b> <br>",
-                "Feel free to go back and forth between the screens using the arrows (left=previous, right=next) or the buttons at the bottom of the screen.</p> "
-                , "<p>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>"
-                , "<p>In this part of the experiment, you will see a plus in the middle of the screen.</p>" +
+                "We will now provide instructions regarding the squares game. <b>Please read them carefully.</b>",
+                "Feel free to go back and forth between the screens using the arrows (left=previous, right=next) or the buttons at the bottom of the screen."
+                , "At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood."
+                , "In this part of the experiment, you will see a plus in the middle of the screen." +
                 "<p> We want you to focus on the plus during the whole experiment.</p> " + "<img src='images/fixation.png'>",
                 "<p> Then, 4 or 8 colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
                 "<img src='images/squares/example1.png'>",
                 "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed.</p>" +
                 "<p> Your goal is to identify whether this square is in the same or different color as the one previously displayed in this location.</p>" +
-                "<p> You need to press <b>'s'</b> if you think the color is the same as in the group picture.</p>" +
+                "<p> You need to press <b>'" + mapping[0] + "'</b> if you think the color is the same as in the group picture.</p>" +
                 "<img src='images/squares/example2.png'>",
-                "<p> You need to press <b>'k'</b> if you think the color is different than in the group picture.</p>" +
+                "<p> You need to press <b>'" + mapping[1] + "'</b> if you think the color is different than in the group picture.</p>" +
                 "<img src='images/squares/example3.png'>", "<p> We will now ask you to complete a short test to make sure that you understood the instructions."],
             show_clickable_nav: true,
         };
-
 
         var Q1_square_options = ["2 or 4", "4 or 8", "4 or 6"];
         var Q2_square_options = ["True", "False"];
@@ -175,8 +189,8 @@
             questions: [
                 { prompt: "How many squares will be initially shown?", name: 'set_size', correct: '4 or 8', options: Q1_square_options, required: true },
                 { prompt: "The single square will appear after the squares will disappear ", name: 'steps', correct: 'True', options: Q2_square_options, required: true },
-                { prompt: "How do you choose if a square is same or different?", name: 'choose_card', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q3_square_options, required: true },
-                { prompt: "What is your goal?", name: 'choose_square', correct: 'The goal is to remember the color of each of the squares', options: Q4_square_options, required: true },
+                { prompt: "How do you choose if a square is same or different?", name: 'choose_square', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q3_square_options, required: true },
+                { prompt: "What is your goal?", name: 'goal', correct: 'The goal is to remember the color of each of the squares', options: Q4_square_options, required: true },
                 { prompt: "What should you focus on?", name: 'focus', correct: 'On the squares to remember their colors', options: Q5_square_options, required: true },
             ],
             data: { trial_name: 'test_squares' }
@@ -228,6 +242,7 @@
         ------------------------------------------------------*/
         var current_squares_practice_trial = 0;
         var current_locations = null; // set up a global variable 
+        var condition_squares_practice = jsPsych.randomization.sampleWithoutReplacement(['1same', '1diff'], 1)[0] //this makes sure that the subject will have at least one set_size1 trial in practice
         var start_practice_squares = {
             type: 'html-keyboard-response',
             stimulus: "<p> We will now start some practice trials.<br> You may already want to be ready with your fingers on '<b>s'</b> and <b>'k'</b>. <br><img class=keyboard src='images/keyboard.png'> <br> <u>Please try to be as accurate as possible for the experiment to succeed.</u> <br><br><b>Press any key to begin</b></u>",
@@ -244,13 +259,13 @@
 
         var memory_practice = {
             type: "html-keyboard-response",
-            stimulus: generate_random_squares,
+            stimulus: function () { return generate_random_squares(condition_squares_practice) },
             choices: jsPsych.NO_KEYS,
             trial_duration: 200,
             data: {
                 phase: 'practice', trial_name: 'memory', trial_num: function () { return current_squares_practice_trial },
                 set_size: function () {
-                    return condition[0]
+                    return condition_squares_practice[0]
                 }
             }
         }
@@ -266,7 +281,7 @@
             type: "html-keyboard-response",
             stimulus: function () {
                 rand_num = getRandomInt(number_of_images - 1)
-                if (condition[1] == 's') { /* it is the same condition */
+                if (condition_squares_practice[1] == 's') { /* it is the same condition */
                     square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
                 }
                 else { /* it is different condition */
@@ -279,19 +294,21 @@
             data: {
                 phase: 'practice', trial_name: 'test', trial_num: function () { return current_squares_practice_trial },
                 correct_response: function () {
-                    if (condition[1] == 's') {
-                        return 83
+                    if (condition_squares_practice[1] == 's') { //it is same condition
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[0])
+
                     }
                     else {
-                        return 75
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[1])
                     }
+                    return key_press_num
                 },
                 set_size: function () {
-                    return condition[0]
+                    return condition_squares_practice[0]
                 }
             },
             on_finish: function (data) {
-                condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
+                condition_squares_practice = jsPsych.randomization.sampleWithoutReplacement(['1same', '1diff', '4same', '4diff', '8same', '8diff'], 1)[0] //now everything could be
                 var correct = false;
                 if (data.correct_response == data.key_press) {
                     correct = true;
@@ -321,6 +338,55 @@
             trial_duration: 500
         }
 
+        var demo_procedure_squares = {
+            timeline: [fixation_memory, memory_practice, fixation_retention, test_practice, feedback_squares],
+            repetitions: 3 //3.5sec per trial*15 =52.5sec
+        }
+
+        var if_trial_practice_squares = {
+            on_start: function () {
+                if (document.querySelector('#cursor-toggle') != null) {
+                    document.querySelector('#cursor-toggle').remove()
+                }
+            },
+            type: 'html-button-response',
+            stimulus: "<p>Sorry. You made too many mistakes.<br>"
+                + "Let’s do the practice session once again. <br>"
+                + "Thank you!",
+            choices: ['Back to practice']
+        }
+        var to_repeat_practice_squares;
+        var check_accuracy = {
+            timeline: [if_trial_practice_squares],
+            conditional_function: function () {
+                /* Get the data from the previous trial,and calculate accuracy
+                   If the participant wasn't perfect in the trials with set_size 1 - we will repeat.*/
+                to_repeat_practice_squares = false;
+                var correct_prac_square = jsPsych.data.getLastTimelineData().filter({ phase: 'practice', trial_name: 'test', set_size: '1' }).select('is_correct').sum()
+                var total_prac_square = jsPsych.data.getLastTimelineData().filter({ phase: 'practice', trial_name: 'test', set_size: '1' }).select('is_correct').count()
+                var prac_square_accuracy = correct_prac_square / total_prac_square;
+                if (prac_square_accuracy != 1) {
+                    to_repeat_practice_squares = true;
+                    return to_repeat_practice_squares
+                }
+                else {
+                    to_repeat_practice_squares = false;
+                }
+                return to_repeat_practice_squares
+            }
+        }
+
+        var practice_squares_loop = {
+            timeline: [start_practice_squares, demo_procedure_squares, check_accuracy],
+            loop_function: function () {
+                if (to_repeat_practice_squares == true) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        /*Start exp part of squares game*/
         var start_exp_squares = {
             type: 'html-keyboard-response',
             stimulus: '<p>Good Job! <br> You have finished the practice trials.<br> We will now start the real experiment. Please try to be as accurate as possible. <br> <br> <b> Press any key to begin</p>'
@@ -330,7 +396,7 @@
 
         var memory = {
             type: "html-keyboard-response",
-            stimulus: generate_random_squares,
+            stimulus: function () { return generate_random_squares(condition_squares_exp) },
             choices: jsPsych.NO_KEYS,
             trial_duration: 200,
             data: {
@@ -342,7 +408,7 @@
             type: "html-keyboard-response",
             stimulus: function () {
                 rand_num = getRandomInt(number_of_images - 1)
-                if (condition[1] == 's') { /* it is the same condition */
+                if (condition_squares_exp[1] == 's') { /* it is the same condition */
                     square = current_locations[rand_num] + change_detection_images[rand_num] + ">"
                 }
                 else { /* it is different condition */
@@ -353,25 +419,26 @@
             choices: ['s', 'k'],
             trial_duration: 6000,
             data: {
-                phase: 'exp', trial_name: 'test', trial_num: function () { return current_squares_exp_trial },
+                phase: 'exp', trial_name: 'test', mapping: mapping, trial_num: function () { return current_squares_exp_trial },
                 correct_response: function () {
-                    if (condition[1] == 's') {
-                        return 83
+                    if (condition_squares_exp[1] == 's') { //it is same condition
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[0])
                     }
                     else {
-                        return 75
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[1])
                     }
+                    return key_press_num
                 },
                 set_size: function () {
-                    return condition[0]
+                    return condition_squares_exp[0]
                 },
                 condition: function () {
-                    return condition[1]
+                    return condition_squares_exp[1]
                 }
             },
 
             on_finish: function (data) {
-                condition = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
+                condition_squares_exp = jsPsych.randomization.sampleWithoutReplacement(['4same', '4diff', '8same', '8diff'], 1)[0]
                 var correct = false;
                 if (data.correct_response == data.key_press) {
                     correct = true;
@@ -384,17 +451,13 @@
             }
         }
 
-        var demo_procedure_squares = {
-            timeline: [fixation_memory, memory_practice, fixation_retention, test_practice, feedback_squares],
-            repetitions: 2 //3.5sec per trial*15 =52.5sec
-        }
         var test_procedure_squares = {
             timeline: [fixation_memory, memory, fixation_retention, test, feedback_squares],
             repetitions: 2 //3.5sec per trial per 120 trials= 420sec
         }
 
         var full_procedure_squares = {
-            timeline: [instructions_squares_loop, start_practice_squares, demo_procedure_squares, start_exp_squares, test_procedure_squares]
+            timeline: [instructions_squares_loop, practice_squares_loop, start_exp_squares, test_procedure_squares]
         } //instructions takes 60sec total
         timeline.push(full_procedure_squares)
 
@@ -424,7 +487,7 @@
             pages: ["<p><b>Welcome to the card game part</b></p>"
                 + "<p style='text-align:left'>Your winnings in this part will earn you additional payment bonus for the study."
                 + " If no extra money will be earned in the card game, you will still get £4 for completing the study."
-                + " However, <b>you can gain up to an extra £2 based on winnings in the game.</b></p>",
+                + " However, <b>you can gain up to an extra £1 based on winnings in the game.</b></p>",
             "<p style='text-align:left'> We will now provide instructions regarding the card game. Please read them carefully. <br>"
             + "As always, feel free to go back and forth between the screens.</p> "
             + "<p style='text-align:left'>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>",
@@ -451,13 +514,14 @@
             type: "instructions",
             pages: [" <p style='text-align:left'>In the experiment we will play the card game and the squares game simultaneously. It means that you will have two goals."
                 + " <b><br>One goal is to remember the colors of the squares like beforehand, and the second is to learn which cards are more rewarding.</b> ",
-                "Like before in the squares part, pressing <b>'s'</b> means you think the shown square is in the same color, and pressing <b>'k'</b> means you think it is different. ",
-                "<p style='text-align:left'> In the card game, pressing <b>'s'</b> means you think the left card is better, and pressing <b>'k'</b> means you think the right card is better. </p>",
-            " <br><br> You will now move on to a quick test to make sure you understood the instructions."
-            + " You can use the previous button to read again through the instructions, in case you need to.</p>"]
+            "Like before in the squares part, pressing <b>'" + mapping[0] + "'</b> means you think the shown square is in the same color, and pressing <b>'" + mapping[1] + "'</b> means you think it is different. ",
+                "<p style='text-align:left'> In the card game, pressing <b>'s'</b> means you think the left card is better, and pressing <b>'k'</b> means you think the right card is better. </p>",]
             , show_clickable_nav: true
         }
-
+        var start_instructions_test = {
+            type: 'html-keyboard-response',
+            stimulus: "<p> <br><br> You will now move on to a quick test to make sure you understood the instructions. If you will have a mistake you will need to go again through the instructions. <br><br> <b> Press any key to continue</b></p>"
+        }
         var Q1_2_options = ["2", "4", "6"];
         var Q3_options = ["Click on it", "Press the LEFT or RIGHT arrow keys", "Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand."];
         var Q4_options = ["Press the LEFT or RIGHT arrow keys", "Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.", "Click on it",];
@@ -473,7 +537,7 @@
                 { prompt: "How do you choose a card?", name: 'choose_card', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q3_options, required: true },
                 { prompt: "How do you choose if a square is same or different?", name: 'choose_square', correct: 'Press the ‘S’ or ‘K’ key with your LEFT or RIGHT hand.', options: Q4_options, required: true },
                 { prompt: "Some cards are better than others.", name: 'better_cards', correct: 'True', options: Q5_6_options, required: true },
-                { prompt: "How ‘good’ or ‘bad’ a card is <u>will not</u> change along the game.", name: 'value_change', correct: 'False', options: Q5_6_options, required: true },
+                { prompt: "How ‘good’ or ‘bad’ a card is will change along the game.", name: 'value_change', correct: 'True', options: Q5_6_options, required: true },
                 { prompt: "What is the goal in the game?", name: 'game_goal', correct: 'The goal is to remember the squares and learn which cards are better', options: Q7_options, required: true },
                 { prompt: "The outcome you might get very much depends on whether you used the RIGHT or LEFT response key.", name: 'location_value', correct: 'False, only cards predict the outcome', options: Q8_options, required: true }
             ],
@@ -614,7 +678,7 @@
             stimulus: function () {
                 number_of_images = parseInt(condition_cards[0])
                 change_detection_images = jsPsych.randomization.shuffle(change_detection_images)
-                current_locations = get_locations(locations, number_of_images)
+                current_locations = get_locations(locations, number_of_images, locations_setsize1)
                 squares = '';
                 for (index = 0; index < number_of_images; index++) {
                     squares += current_locations[index] + change_detection_images[index] + ">"
@@ -732,12 +796,13 @@
             data: {
                 phase: 'practice', trial_name: 'test_cards', trial_num: function () { return current_cards_practice_trial },
                 correct_response: function () {
-                    if (condition_cards[1] == 's') {
-                        return 83
+                    if (condition_cards[1] == 's') { //it is same condition
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[0])
                     }
                     else {
-                        return 75
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[1])
                     }
+                    return key_press_num
                 },
                 set_size: function () {
                     return condition_cards[0]
@@ -789,7 +854,7 @@
             stimulus: function () {
                 number_of_images = parseInt(condition_cards[0])
                 change_detection_images = jsPsych.randomization.shuffle(change_detection_images)
-                current_locations = get_locations(locations, number_of_images)
+                current_locations = get_locations(locations, number_of_images, locations_setsize1)
                 squares = '';
                 for (index = 0; index < number_of_images; index++) {
                     squares += current_locations[index] + change_detection_images[index] + ">"
@@ -936,14 +1001,15 @@
             choices: ['s', 'k'],
             trial_duration: 6000,
             data: {
-                phase: 'exp', trial_name: 'test_cards', trial_num: function () { return current_cards_exp_trial }, block: function () { return block }
+                phase: 'exp', trial_name: 'test_cards', mapping: mapping, trial_num: function () { return current_cards_exp_trial }, block: function () { return block }
                 , correct_response: function () {
-                    if (condition_cards[1] == 's') {
-                        return 83
+                    if (condition_cards[1] == 's') { //it is same condition
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[0])
                     }
                     else {
-                        return 75
+                        key_press_num = jsPsych.pluginAPI.convertKeyCharacterToKeyCode(mapping[1])
                     }
+                    return key_press_num
                 }, set_size: function () {
                     return condition_cards[0]
                 },
@@ -974,7 +1040,7 @@
                     finish_block_string += ' You can stretch a little and take a short break while sitting in front of the screen, if needed.</p><p> <br><br><br><b>Press SPACE to continue</b>  </p>'
                 }
                 else {
-                    finish_block_string += ' We will now continue to fill up some questionnaires.</p><p> <br><br><br><b>Press SPACE to continue</b>  </p>'
+                    finish_block_string += ' We will now continue to answer some questions.</p><p> <br><br><br><b>Press SPACE to continue</b>  </p>'
                 }
                 return finish_block_string
             },
@@ -999,7 +1065,7 @@
             repetitions: 2 //every trial takes 500+200+2*(900+1500+500+750)+1500+500 =10 sec per trial, 6 trials = 60 sec
         }
         var instructions_loop = {
-            timeline: [instructions_cards, start_practice_only_cards, demo_procedure_only_cards, instructions_combined, instructions_test, check_answers],
+            timeline: [instructions_cards, start_practice_only_cards, demo_procedure_only_cards, instructions_combined, start_practice_cards, demo_procedure_cards, start_instructions_test, instructions_test, check_answers],
             loop_function: function () {
                 if (to_repeat == true) {
                     return true;
@@ -1010,7 +1076,7 @@
         }
         var test_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards, fixation_cards, exp_cards1, exp_choice1, exp_reward1, fixation_cards, exp_cards2, exp_choice2, exp_reward2, test_for_cards, feedback_squares],
-            repetitions: 2 // 10sec per trial - 35 minutes for questionnaires and exp. 5 for questionnaires - 1800sec left - 180 trials - 45 trials per block.
+            repetitions: 9 // 10sec per trial - 35 minutes for questionnaires and exp. 5 for questionnaires - 1800sec left - 180 trials - 45 trials per block.
         }
         var test_blocks = {
             timeline: [start_block, test_procedure_cards, finish_block],
@@ -1018,11 +1084,20 @@
         };
 
         var full_procedure_cards = {
-            timeline: [instructions_loop, start_practice_cards, demo_procedure_cards, start_exp_cards, test_blocks]
+            timeline: [instructions_loop, start_exp_cards, test_blocks]
         } //instructions+test takes 180sec 
         timeline.push(full_procedure_cards)
 
-
+        /*---------------------------------------------------- 
+        manipulation checking
+        ------------------------------------------------------*/
+        var question = {
+            type: 'html-slider-response',
+            stimulus: '<p>How much did you believe in our instructions?</p>',
+            labels: ['Did not believe at all ', 'Very much believed'],
+            data: { trial_num: question }
+        };
+        timeline.push(question)
         /*---------------------------------------------------- 
         After experiment
         ------------------------------------------------------*/
@@ -1037,8 +1112,8 @@
                 feedback_string += 'Your accuracy was: ' + accuracy_string
                 var number_of_reward1 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward1' }).select('reward').sum()
                 var number_of_reward2 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward2' }).select('reward').sum()
-                var bonus = 0.1 * (number_of_reward1 + number_of_reward2)
-                var bonus_string = bonus.toFixed(1)
+                var bonus = 0.006 * (number_of_reward1 + number_of_reward2)
+                var bonus_string = bonus.toFixed(2)
                 feedback_string += '<br> Your bonus is: ' + bonus_string + 'Pounds </div>'
 
                 return feedback_string
@@ -1089,7 +1164,7 @@
             on_finish: function () {
                 jsPsych.data.displayData();
                 raw_data = jsPsych.data.get().csv() //raw_data
-                processed_data = jsPsych.data.get().filter([{ phase: 'exp', trial_name: 'test' }, { phase: 'exp', trial_name: 'reward1' }, { phase: 'exp', trial_name: 'reward2' }, { phase: 'exp', trial_name: 'test_cards' }]).csv()
+                processed_data = jsPsych.data.get().filter([{ phase: 'exp', trial_name: 'test' }, { phase: 'exp', trial_name: 'reward1' }, { phase: 'exp', trial_name: 'reward2' }, { phase: 'exp', trial_name: 'test_cards' }, { phase: 'exp', trial_name: 'question' }]).csv()
                 download_csv(raw_data)
                 download_csv(processed_data)
             },
