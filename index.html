@@ -340,7 +340,7 @@
 
         var demo_procedure_squares = {
             timeline: [fixation_memory, memory_practice, fixation_retention, test_practice, feedback_squares],
-            repetitions: 2 //3.5sec per trial*15 =52.5sec
+            repetitions: 10 //3.5sec per trial*10 =35sec
         }
 
         var if_trial_practice_squares = {
@@ -453,7 +453,7 @@
 
         var test_procedure_squares = {
             timeline: [fixation_memory, memory, fixation_retention, test, feedback_squares],
-            repetitions: 2 //3.5sec per trial per 120 trials= 420sec
+            repetitions: 120 //3.5sec per trial per 120 trials= 420sec
         }
 
         var full_procedure_squares = {
@@ -1057,12 +1057,12 @@
         ------------------------------------------------------*/
         var demo_procedure_only_cards = {
             timeline: [fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2],
-            repetitions: 2 //every trial takes 500+200+2*(900+1500+500+750)+1500+500 =10 sec per trial, 6 trials = 60 sec
+            repetitions: 6 //every trial takes 500+200+2*(900+1500+500+750)+1500+500 =10 sec per trial, 6 trials = 60 sec
         }
 
         var demo_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards_prac, fixation_cards, practice_cards1, practice_choice1, practice_reward1, fixation_cards, practice_cards2, practice_choice2, practice_reward2, test_for_cards_prac, feedback_squares],
-            repetitions: 2 //every trial takes 500+200+2*(900+1500+500+750)+1500+500 =10 sec per trial, 6 trials = 60 sec
+            repetitions: 6 //every trial takes 500+200+2*(900+1500+500+750)+1500+500 =10 sec per trial, 6 trials = 60 sec
         }
         var instructions_loop = {
             timeline: [instructions_cards, start_practice_only_cards, demo_procedure_only_cards, instructions_combined, start_practice_cards, demo_procedure_cards, start_instructions_test, instructions_test, check_answers],
@@ -1076,7 +1076,7 @@
         }
         var test_procedure_cards = {
             timeline: [fixation_memory, memory_for_cards, fixation_cards, exp_cards1, exp_choice1, exp_reward1, fixation_cards, exp_cards2, exp_choice2, exp_reward2, test_for_cards, feedback_squares],
-            repetitions: 2 // 10sec per trial - 35 minutes for questionnaires and exp. 5 for questionnaires - 1800sec left - 180 trials - 45 trials per block.
+            repetitions: 60 // 10sec per trial - 40 minutes for questionnaires and exp. 2400sec left - 240 trials - 60 trials per block.
         }
         var test_blocks = {
             timeline: [start_block, test_procedure_cards, finish_block],
