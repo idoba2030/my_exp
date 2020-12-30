@@ -163,11 +163,11 @@
             type: "instructions",
             pages: ["The experiment will have two parts, we will now start the first one, called the <b>'squares game'</b>.",
                 "We will now provide instructions regarding the squares game. <b>Please read them carefully.</b>",
-                "Feel free to go back and forth between the screens using the arrows (left=previous, right=next) or the buttons at the bottom of the screen."
+                "Feel free to go back and forth between the screens using the arrows (left=previous, right=next) or the buttons below."
                 , "At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood."
                 , "In this part of the experiment, you will see a plus in the middle of the screen." +
                 "<p> We want you to focus on the plus during the whole experiment.</p> " + "<img src='images/fixation.png'>",
-                "<p> Then, 4 or 8 colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
+                "<p> Then, <b>4 or 8</b> colored squares will appear on the screen. You need to remember the colors of all of the squares.</p>" +
                 "<img src='images/squares/example1.png'>",
                 "<p> Right afterward, the squares will disappear and instead, one square will show up in a place where one of the squares was previously displayed.</p>" +
                 "<p> Your goal is to identify whether this square is in the same or different color as the one previously displayed in this location.</p>" +
@@ -245,7 +245,7 @@
         var condition_squares_practice = jsPsych.randomization.sampleWithoutReplacement(['1same', '1diff'], 1)[0] //this makes sure that the subject will have at least one set_size1 trial in practice
         var start_practice_squares = {
             type: 'html-keyboard-response',
-            stimulus: "<p> We will now start some practice trials.<br> You may already want to be ready with your fingers on '<b>s'</b> and <b>'k'</b>. <br><img class=keyboard src='images/keyboard.png'> <br> <u>Please try to be as accurate as possible for the experiment to succeed.</u> <br><br><b>Press any key to begin</b></u>",
+            stimulus: "<p> We will now start some practice trials. <br>In the practice not only 4 or 8 squares may initially appear, but also 1 square to make sure that you understood the task.<br><br> You may already want to be ready with your fingers on '<b>s'</b> and <b>'k'</b>. <br><img class=keyboard src='images/keyboard.png'> <br> <u>Please try to be as accurate as possible for the experiment to succeed.</u> <br><br><b>Press any key to begin</b></u>",
             post_trial_gap: 1000,
             on_finish: function () { document.querySelector('head').insertAdjacentHTML('beforeend', '<style id="cursor-toggle"> html { cursor: none; } </style>') },
         }
@@ -484,25 +484,25 @@
                 }
             },
             type: "instructions",
-            pages: ["<p><b>Welcome to the card game part</b></p>"
+            pages: ["You finished the squares game part!<br> You will now move on to the card game", "<p><b>Welcome to the card game</b></p>"
                 + "<p style='text-align:left'>Your winnings in this part will earn you additional payment bonus for the study."
                 + " If no extra money will be earned in the card game, you will still get £4 for completing the study."
                 + " However, <b>you can gain up to an extra £1 based on winnings in the game.</b></p>",
-            "<p style='text-align:left'> We will now provide instructions regarding the card game. Please read them carefully. <br>"
-            + "As always, feel free to go back and forth between the screens.</p> "
-            + "<p style='text-align:left'>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>",
-            "<p style='text-align:left'> Below is an example of a card-deck of four cards, very much like the cards in the game to follow. </p>" +
-            "<img class='group' src='images/group.jpg' >",
-            "<p> On each step, only two cards from this deck will be offered (as shown in the example below).<br>You will be able to select the left card by pressing <b>'s'</b> and the right card by pressing <b>'k'</b> on your keyboard."
-            + " <br><br><u>Please do your best to respond as fast and accurate as you can.</u><br><br>"
-            + "<img class='example' src='images/example.jpg' >",
-            "<p style='text-align:left'>After selecting the card, you will see an outcome in the middle of the screen, as shown below.<br>"
-            + "<b>Winning very much depends on the card you chose. Some cards are better than others in their deck.</b><br>"
-            + "Your task is to find out which card is the best in each deck at any time and choose it.</p>"
-            + "<br> <img class='example' src='images/reward_example.jpg'>",
-            "<p style='text-align:left'><u>Two important things to remember:</u><br>"
-            + "1. <b>How good a card is can change along the game</b>, somewhat like the value of market products that sometimes worth more and sometimes less."
-            + "<br>2. Only the cards predict an outcome. <b>The response key that was used to select a card does not influence the chances of winning a coin.</b></p>"],
+                "<p style='text-align:left'> We will now provide instructions regarding the card game. Please read them carefully. <br>"
+                + "As always, feel free to go back and forth between the screens.</p> "
+                + "<p style='text-align:left'>At the end of the instructions, <b>we will ask you to complete a short test about them</b>, to make sure everything is well understood.</p>",
+                "<p style='text-align:left'> Below is an example of a card-deck of four cards, very much like the cards in the game to follow. </p>" +
+                "<img class='group' src='images/group.jpg' >",
+                "<p> On each step, only two cards from this deck will be offered (as shown in the example below).<br>You will be able to select the left card by pressing <b>'s'</b> and the right card by pressing <b>'k'</b> on your keyboard."
+                + " <br><br><u>Please do your best to respond as fast and accurate as you can.</u><br><br>"
+                + "<img class='example' src='images/example.jpg' >",
+                "<p style='text-align:left'>After selecting the card, you will see an outcome in the middle of the screen, as shown below.<br>"
+                + "<b>Winning very much depends on the card you chose. Some cards are better than others in their deck.</b><br>"
+                + "Your task is to find out which card is the best in each deck at any time and choose it.</p>"
+                + "<br> <img class='example' src='images/reward_example.jpg'>",
+                "<p style='text-align:left'><u>Two important things to remember:</u><br>"
+                + "1. <b>How good a card is can change along the game</b>, somewhat like the value of market products that sometimes worth more and sometimes less."
+                + "<br>2. Only the cards predict an outcome. <b>The response key that was used to select a card does not influence the chances of winning a coin.</b></p>"],
             show_clickable_nav: true
         };
         var instructions_combined = {
@@ -839,7 +839,7 @@
             type: 'html-keyboard-response',
             stimulus: function () {
                 return '<p><b><u>Test block ' + (block + 1) + ' out of ' + (blocks + 1) + '</u></b></p>' + '<p style="text-align: left"> You will now start a test block. Below are the four cards that can appear in this round.</p>'
-                    + '<p style="text-align: left">Use the LEFT or RIGHT response keys (‘s’ or ‘k’, in correspondence) to make your selection. <br> Do your best to win as many coins as possible!<br> </p>'
+                    + '<p style="text-align: left">Use the LEFT or RIGHT response keys (‘s’ or ‘k’, in correspondence) to make your selection. <br> Please do your best to remember the colors of the squares and to win as many coins as possible!<br> </p>'
                     + '<p style="text-align: left">Remember that: <br> 1) How ‘good’ each card is can change along the round <br> 2) Only the cards (not the response key that was used to select them) predict an outcome </p>'
                     + '<p><b>Press SPACE to start</b></p>'
                     + '<img src="' + images_for_block_start()[0] + '">  ' + '<img src="' + images_for_block_start()[1] + '">    ' + '<img src="' + images_for_block_start()[2]
@@ -1087,14 +1087,13 @@
             timeline: [instructions_loop, start_exp_cards, test_blocks]
         } //instructions+test takes 180sec 
         timeline.push(full_procedure_cards)
-
         /*---------------------------------------------------- 
         Questionnaires
         ------------------------------------------------------*/
         var question = {
             type: 'html-slider-response',
             stimulus: '<p>How much did you believe in our instructions?</p>',
-            labels: ['Did not believe at all ', 'Very much believed'],
+            labels: ['I Did not believe at all ', 'I Believed very much'],
             data: { phase: 'exp', trial_name: 'question' }
         };
         timeline.push(question)
@@ -1112,12 +1111,13 @@
                 feedback_string += 'Your accuracy was: ' + accuracy_string
                 var number_of_reward1 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward1' }).select('reward').sum()
                 var number_of_reward2 = jsPsych.data.get().filter({ phase: 'exp', trial_name: 'reward2' }).select('reward').sum()
-                var bonus = 0.006 * (number_of_reward1 + number_of_reward2)
+                var bonus = 0.003 * (number_of_reward1 + number_of_reward2)
                 var bonus_string = bonus.toFixed(2)
                 feedback_string += '<br> Your bonus is: ' + bonus_string + 'Pounds </div>'
 
                 return feedback_string
-            }
+            },
+            trial_duration: 10000
         }
         timeline.push(conclusion)
 
